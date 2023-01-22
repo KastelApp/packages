@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-unused-vars */
 
-import User from './User';
+import type User from './User';
 
 class Events {
   name: string;

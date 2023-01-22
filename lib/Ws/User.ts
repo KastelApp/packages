@@ -126,6 +126,14 @@ export default class User {
     this.ws = ws;
   }
 
+  setHeartbeatInterval(interval: number) {
+    this.heartbeatInterval = interval;
+  }
+
+  setLastHeartbeat(lastHeartbeat: number) {
+    this.lastHeartbeat = lastHeartbeat;
+  }
+
   resume(seq: number): boolean {
     if (!this.closed || !this.closedAt) {
       return false; // how can you resume if you never closed?

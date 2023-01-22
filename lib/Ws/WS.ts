@@ -11,16 +11,6 @@ class WebsocketServer {
   connectedUsers: Map<
     string,
     User
-    // {
-    //   ip: string;
-    //   socket: WebSocket.WebSocket;
-    //   authed: boolean;
-    //   connectedAt: number;
-    //   lastHeartbeat: number;
-    //   heartbeatInterval?: number | null;
-    //   seq: number;
-    //   sessionId?: string | null;
-    // }
   >;
 
   ws: any;
@@ -88,17 +78,6 @@ class WebsocketServer {
       const id = Utils.generateSessionID();
 
       socket.id = id;
-
-      // this.connectedUsers.set(id, {
-      //   ip,
-      //   socket,
-      //   authed: false,
-      //   connectedAt: Date.now(),
-      //   lastHeartbeat: Date.now(),
-      //   heartbeatInterval: null,
-      //   seq: 0,
-      //   sessionId: null, // null if not authed
-      // });
 
       const user = new User(id, socket, false);
 
