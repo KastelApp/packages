@@ -10,7 +10,7 @@ import User from './User';
 class WebsocketServer {
   connectedUsers: Map<string, User>;
 
-  ws: any;
+  ws: WebSocket.Server | null;
 
   server: http.Server<typeof http.IncomingMessage, typeof http.ServerResponse> | null;
 
@@ -23,9 +23,6 @@ class WebsocketServer {
   constructor(init: number | http.Server, allowedIps: string[], closeOnError: boolean) {
     this.connectedUsers = new Map();
 
-    /**
-     * @type {WebSocket}
-     */
     this.ws = null;
 
     this.server = typeof init === 'number' ? null : init;
