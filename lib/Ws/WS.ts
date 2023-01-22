@@ -8,10 +8,7 @@ import Utils from './Utils';
 import User from './User';
 
 class WebsocketServer {
-  connectedUsers: Map<
-    string,
-    User
-  >;
+  connectedUsers: Map<string, User>;
 
   ws: any;
 
@@ -23,11 +20,7 @@ class WebsocketServer {
 
   closeOnError: boolean;
 
-  constructor(
-    init: number | http.Server,
-    allowedIps: string[],
-    closeOnError: boolean,
-  ) {
+  constructor(init: number | http.Server, allowedIps: string[], closeOnError: boolean) {
     this.connectedUsers = new Map();
 
     /**
