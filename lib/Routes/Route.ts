@@ -133,7 +133,7 @@ export default class Route {
 
   static setRoutes(app: Server) {
     if (!app) {
-      throw new Error('Please provide the Express Server');
+      throw new Error('Please provide the Express Server (External Error)');
     }
 
     for (const route of routes) {
