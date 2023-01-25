@@ -65,13 +65,50 @@ class WebsocketServer {
         return;
       }
 
-      const id = Utils.generateSessionID();
+      const clientOrBot = req.url?.match(Utils.REGEXES.TYPE);
+      const params = req.url?.match(Utils.REGEXES.PARAMS);
 
-      socket.id = id;
+      if (!clientOrBot || !params) {
+        // (T) = Type (not found)
+        socket.send(new Errors('Invalid request (T)').toString());
 
-      const user = new User(id, socket, false);
+        socket.close(Utils.HARD_CLOSE_CODES.AUTHENTICATION_FAILED);
 
-      this.connectedUsers.set(id, user);
+        return;
+      }
+
+      socket.id = Utils.generateSessionID();
+
+      const user = new User(socket.id, socket, false);
+
+      user.setAuth(clientOrBot[1] === 'bot' ? Utils.AUTH_CODES.BOT : Utils.AUTH_CODES.USER);
+      user.setParams(Utils.paramsToObject(params.map(p => p.replace(/^[?&]/, ''))));
+
+      const usersParams = user.params as {
+        encoding?: string; // encoding (should always be json for now)
+        v?: string; // version
+      };
+
+      if (!usersParams.encoding || usersParams.encoding !== 'json') {
+        // (EN) = Encoding (not json)
+
+        user.close(Utils.HARD_CLOSE_CODES.INVALID_REQUEST, 'Invalid request (EN)', this.closeOnError);
+
+        return;
+      }
+
+      if (!usersParams.v) {
+        // (V) = Version (not found)
+
+        user.close(Utils.HARD_CLOSE_CODES.INVALID_REQUEST, 'Invalid request (V)', this.closeOnError);
+
+        return;
+      }
+
+      user.setEncoding(usersParams.encoding);
+      user.setVersion(usersParams.v);
+
+      this.connectedUsers.set(user.id, user);
 
       socket.on('message', (data) => {
         try {
@@ -88,7 +125,7 @@ class WebsocketServer {
             return;
           }
 
-          const foundEvent = Events.getEventName(json.event as string) || Events.getEventCode(json.op as number);
+          const foundEvent = Events.getEventName(json.event as string, user.socketVersion as number) || Events.getEventCode(json.op as number, user.socketVersion as number);
 
           if (!foundEvent) {
             // (E) = Event (not found)
@@ -102,6 +139,17 @@ class WebsocketServer {
             user.close(Utils.HARD_CLOSE_CODES.NOT_AUTHENTICATED, 'Invalid request (A)', this.closeOnError);
 
             return;
+          }
+
+          if (foundEvent.strictCheck) {
+            const validated = Utils.validateAuthCode(foundEvent.allowedAuthTypes, user.authType);
+
+            if (!validated) {
+              // (A) = Auth (not authed)
+              user.close(Utils.HARD_CLOSE_CODES.NOT_AUTHENTICATED, 'Invalid request (A)', this.closeOnError);
+
+              return;
+            }
           }
 
           foundEvent.execute(user, json.d, this.connectedUsers);

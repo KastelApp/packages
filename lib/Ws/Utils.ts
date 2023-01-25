@@ -55,6 +55,71 @@ class Utils {
       MISSED_HEARTBEAT: 1001, // Missed heartbeat
     };
   }
+
+  static get AUTH_CODES() {
+    return {
+      USER: 1 << 0,
+      BOT: 1 << 1,
+      STAFF: 1 << 2,
+    };
+  }
+
+  // Strict is if the user HAS to have the EXACT permissions, or if they just need to have one of the permissions
+  static validateAuthCode(allowed: number, provided: number | null, strict = false) {
+
+    if (!provided) {
+      return false;
+    }
+
+    // allowed could be like USER | STAFF but if user is only USER we still allow them
+    const has = Utils._toObject(provided);
+
+    const needs = Utils._toObject(allowed);
+
+    if (strict) {
+      return Object.keys(needs).every((key) => has[key]);
+    } else {
+      return Object.keys(needs).some((key) => has[key]);
+    }
+  }
+
+  private static _toObject(num: number) {
+    return Object.keys(Utils.AUTH_CODES).reduce(
+      (
+        acc: {
+          [key: string]: boolean;
+        },
+        key: string,
+      ) => ((acc[key] = Utils.AUTH_CODES[key as keyof typeof Utils.AUTH_CODES] & num ? true : false), acc),
+      {},
+    );
+  }
+
+  static get REGEXES() {
+    return {
+      TYPE: /^\/(bot|client)\//g,
+      PARAMS: /[?&]([^=]+=[^&]+)/g,
+    };
+  }
+
+  static paramsToObject(params: string[]) {
+    return params.reduce(
+      (
+        acc: {
+          [key: string]: any;
+        },
+        param: string,
+      ) => {
+        const [key, value] = param.split('=');
+
+        if (!key || !value) return acc;
+
+        acc[key] = value;
+        return acc;
+      },
+      {},
+    );
+  }
 }
 
 export default Utils;

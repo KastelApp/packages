@@ -1,12 +1,16 @@
 /* eslint-disable no-unused-vars */ // disabled for interfaces
 
 import User from './User';
+import Utils from './Utils';
 
 interface Event {
   name: string;
   op: number;
   execute: (user: User, data: any, users: Map<string, User>) => void;
   authRequired?: boolean;
+  allowedAuthTypes: number;
+  strictCheck: boolean;
+  version: number;
 }
 
 const setEvents: Map<string, Event> = new Map();
@@ -19,6 +23,9 @@ class EventsHandler {
       execute: (user: User, data: any, users: Map<string, User>) => void;
       op: number;
       authRequired?: boolean;
+      allowedAuthTypes: number;
+      strictCheck: boolean;
+      version: number;
     }[]
   ) {
     this.events = events;
@@ -27,8 +34,11 @@ class EventsHandler {
       if (typeof event !== 'object') throw new TypeError('Event must be an object');
       if (typeof event.name !== 'string') throw new TypeError('Event name must be a string');
       if (typeof event.execute !== 'function') throw new TypeError('Event execute must be a function');
+      if (typeof event.op !== 'number') throw new TypeError('Event op must be a number');
+      if (event.version < 0) throw new TypeError('Event version must be a positive number');
 
-      setEvents.set(event.name, event);
+      // using Session IDS to prevent duplicate events (Since we now can't use the event name)
+      setEvents.set(Utils.generateSessionID(), event);
     }
   }
 
@@ -44,15 +54,21 @@ class EventsHandler {
     return setEvents;
   }
 
-  static getEventName(name: string) {
-    return setEvents.get(name);
+  static getEventName(name: string, version: number): Event | null {
+    if (!name) return null;
+
+    for (const event of setEvents.values()) {
+      if (event.name === name && event.version == version) return event;
+    }
+
+    return null;
   }
 
-  static getEventCode(code: number): Event | null {
+  static getEventCode(code: number, version: number): Event | null {
     if (!code) return null;
 
     for (const event of setEvents.values()) {
-      if (event.op === code) return event;
+      if (event.op === code && event.version == version) return event;
     }
 
     return null;

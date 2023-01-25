@@ -1,6 +1,7 @@
 import WebSocket from 'ws';
 import Errors from './Errors';
 import Utils from './Utils';
+import zlib from 'zlib';
 
 interface EventQueue {
   seq: boolean;
@@ -23,6 +24,13 @@ export default class User {
   closedAt: number | null;
   closedCode: number;
   eventQueue: EventQueue[];
+  encoding: 'json'; // encoding is always json (This is here for future use)
+  compression: boolean; // compression is possible when encoding is json (because its zlib idk)
+  authType: number | null;
+  params: {
+    [key: string]: string;
+  };
+  socketVersion: number | null;
   constructor(id: string, ws: WebSocket.WebSocket, authed: boolean) {
     this.id = id;
 
@@ -35,7 +43,15 @@ export default class User {
 
     this.authed = authed;
 
+    this.authType = null;
+
     this.seq = 0;
+
+    this.encoding = 'json';
+
+    this.compression = false;
+
+    this.socketVersion = null;
 
     this.connectedAt = Date.now();
 
@@ -50,6 +66,28 @@ export default class User {
     this.closedCode = -1;
 
     this.eventQueue = [];
+
+    this.params = {};
+  }
+
+  compress(data: any): Buffer | string {
+    if (typeof data !== 'string') {
+      data = JSON.stringify(data);
+    }
+
+    if (typeof data !== 'string') {
+      throw new Error('Invalid data (not a string even after conversion)');
+    }
+
+    if (!this.compression) {
+      return data; // just to make my life easier
+    }
+
+    const input = Buffer.from(data);
+
+    const compressed = zlib.deflateSync(input);
+
+    return compressed;
   }
 
   send(data: any, seq = true) {
@@ -64,24 +102,15 @@ export default class User {
 
       return;
     }
-    if (typeof data === 'object') {
+
       if (seq) {
         this.seq++;
       }
 
-      data = JSON.stringify({
+      data = this.compress({
         ...data,
         ...(seq ? { s: this.seq } : {}),
       });
-    }
-
-    if (typeof data !== 'string') {
-      data = String(data);
-    }
-
-    if (typeof data !== 'string') {
-      throw new Error('Invalid data (not a string even after conversion)');
-    }
 
     this.ws.send(data);
   }
@@ -134,6 +163,26 @@ export default class User {
     this.lastHeartbeat = lastHeartbeat;
   }
 
+  setAuth(auth: number) {
+    this.authType = auth;
+  }
+
+  setEncoding(encoding: 'json') {
+    this.encoding = encoding;
+  }
+
+  setCompression(compression: boolean) {
+    this.compression = compression;
+  }
+
+  setParams(params: { [key: string]: string }) {
+    this.params = params;
+  }
+
+  setVersion(version: string) {
+    this.socketVersion = parseInt(version);
+  }
+
   resume(seq: number): boolean {
     if (!this.closed || !this.closedAt) {
       return false; // how can you resume if you never closed?
@@ -175,7 +224,15 @@ export default class User {
   }
 
   queue() {
-    // loop through the queue and call nextQueue
+    // loop through the queue and call nextQueue after sending the first event
+    const firstEvent = this.eventQueue[0];
+
+    if (!firstEvent) {
+      return;
+    }
+
+    this.send(firstEvent.e, firstEvent.seq);
+
     while (this.nextQueue()) {
       // do nothing
     }
