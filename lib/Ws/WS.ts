@@ -82,7 +82,7 @@ class WebsocketServer {
       const user = new User(socket.id, socket, false);
 
       user.setAuth(clientOrBot[1] === 'bot' ? Utils.AUTH_CODES.BOT : Utils.AUTH_CODES.USER);
-      user.setParams(Utils.paramsToObject(params.map(p => p.replace(/^[?&]/, ''))));
+      user.setParams(Utils.paramsToObject(params.map((p) => p.replace(/^[?&]/, ''))));
 
       const usersParams = user.params as {
         encoding?: string; // encoding (should always be json for now)
@@ -125,7 +125,9 @@ class WebsocketServer {
             return;
           }
 
-          const foundEvent = Events.getEventName(json.event as string, user.socketVersion as number) || Events.getEventCode(json.op as number, user.socketVersion as number);
+          const foundEvent =
+            Events.getEventName(json.event as string, user.socketVersion as number) ||
+            Events.getEventCode(json.op as number, user.socketVersion as number);
 
           if (!foundEvent) {
             // (E) = Event (not found)

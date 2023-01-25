@@ -66,7 +66,6 @@ class Utils {
 
   // Strict is if the user HAS to have the EXACT permissions, or if they just need to have one of the permissions
   static validateAuthCode(allowed: number, provided: number | null, strict = false) {
-
     if (!provided) {
       return false;
     }

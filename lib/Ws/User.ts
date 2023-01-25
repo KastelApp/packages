@@ -103,14 +103,14 @@ export default class User {
       return;
     }
 
-      if (seq) {
-        this.seq++;
-      }
+    if (seq) {
+      this.seq++;
+    }
 
-      data = this.compress({
-        ...data,
-        ...(seq ? { s: this.seq } : {}),
-      });
+    data = this.compress({
+      ...data,
+      ...(seq ? { s: this.seq } : {}),
+    });
 
     this.ws.send(data);
   }
