@@ -7,7 +7,21 @@ import Errors from './Errors';
 import Utils from './Utils';
 import User from './User';
 
-class WebsocketServer {
+import { EventEmitter } from 'events';
+
+export interface WebsocketServer {
+  // There are 4 listeners, one is 'connection' which emits when someone connects to the websocket
+  // The 2nd one is debug, which emits when the debug function is called
+  // The 3rd one is 'error', which emits when an error occurs
+  // The 4th one is 'close', which emits when a connection is closed
+
+  on(event: 'connection', listener: (user: User) => void): this;
+  on(event: 'debug', listener: (message: string) => void): this;
+  on(event: 'error', listener: (error: Error, user?: User) => void): this;
+  on(event: 'close', listener: (user: User, expecting: boolean) => void): this;
+}
+
+export class WebsocketServer extends EventEmitter {
   connectedUsers: Map<string, User>;
 
   ws: WebSocket.Server | null;
@@ -20,7 +34,21 @@ class WebsocketServer {
 
   closeOnError: boolean;
 
-  constructor(init: number | http.Server, allowedIps: string[], closeOnError: boolean) {
+  debugEnabled: boolean;
+
+  maxPerIp: number;
+
+  maxConnectionsPerMinute: number;
+
+  heartbeatInterval: number;
+
+  closedInterval: number;
+
+  unauthedTimeout: number;
+
+  constructor(init: number | http.Server, allowedIps: string[], closeOnError: boolean, debug?: boolean) {
+    super();
+
     this.connectedUsers = new Map();
 
     this.ws = null;
@@ -36,6 +64,18 @@ class WebsocketServer {
     this.allowedIps = allowedIps;
 
     this.closeOnError = closeOnError;
+
+    this.debugEnabled = debug || false;
+
+    this.maxPerIp = 10; // only 5 connections per ip (This is a BAD solution, but it works for now)
+
+    this.maxConnectionsPerMinute = 5; // the max connections per minute per ip (meaning 5 people can connect in 1 minute, but 6th will be disconnected)
+
+    this.heartbeatInterval = 1000 * 1; // 1 second
+
+    this.closedInterval = 1000 * 5; // 5 seconds
+
+    this.unauthedTimeout = 1000 * 10; // 10 seconds
   }
 
   createWs(): WebSocket.Server {
@@ -54,6 +94,32 @@ class WebsocketServer {
     wss.on('connection', (socket, req) => {
       const ip = req.socket.remoteAddress as string;
 
+      const ipConnections = Array.from(this.connectedUsers.values()).filter((u) => u.ip === ip);
+
+      if (ipConnections.length >= this.maxPerIp) {
+        // (M) = IP (max connections reached)
+        socket.send(new Errors('Invalid request (M)').toString());
+
+        socket.close(Utils.HARD_CLOSE_CODES.AUTHENTICATION_FAILED);
+
+        this.debug(`Max connections reached for ${ip}`);
+
+        return;
+      }
+
+      const lastMinuteConnections = ipConnections.filter((u) => u.connectedAt >= Date.now() - 60000);
+
+      if (lastMinuteConnections.length >= this.maxConnectionsPerMinute) {
+        // (MX) = IP (max connections reached)
+        socket.send(new Errors('Invalid request (MX)').toString());
+
+        socket.close(Utils.HARD_CLOSE_CODES.AUTHENTICATION_FAILED);
+
+        this.debug(`Max connections reached for ${ip} in the last minute`);
+
+        return;
+      }
+
       this.debug(`New connection from ${ip}`);
 
       if (this.allowedIps.length > 0 && !this.allowedIps.includes(ip as string)) {
@@ -61,6 +127,8 @@ class WebsocketServer {
         socket.send(new Errors('Invalid request (P)').toString());
 
         socket.close(Utils.HARD_CLOSE_CODES.AUTHENTICATION_FAILED);
+
+        this.debug(`Connection from ${ip} was not allowed`);
 
         return;
       }
@@ -74,14 +142,16 @@ class WebsocketServer {
 
         socket.close(Utils.HARD_CLOSE_CODES.AUTHENTICATION_FAILED);
 
+        this.debug(`Was not client or bot from ${ip}`);
+
         return;
       }
 
       socket.id = Utils.generateSessionID();
 
-      const user = new User(socket.id, socket, false);
+      const user = new User(socket.id, socket, false, ip);
 
-      user.setAuth(clientOrBot[1] === 'bot' ? Utils.AUTH_CODES.BOT : Utils.AUTH_CODES.USER);
+      user.setAuth(clientOrBot[1] === 'bot' ? Utils.AUTH_CODES.BOT : clientOrBot[0] === 'system' ? Utils.AUTH_CODES.SYSTEM : Utils.AUTH_CODES.USER);
       user.setParams(Utils.paramsToObject(params.map((p) => p.replace(/^[?&]/, ''))));
 
       const usersParams = user.params as {
@@ -94,6 +164,8 @@ class WebsocketServer {
 
         user.close(Utils.HARD_CLOSE_CODES.INVALID_REQUEST, 'Invalid request (EN)', this.closeOnError);
 
+        this.debug(`Encoding was not json from ${ip}`);
+
         return;
       }
 
@@ -102,6 +174,8 @@ class WebsocketServer {
 
         user.close(Utils.HARD_CLOSE_CODES.INVALID_REQUEST, 'Invalid request (V)', this.closeOnError);
 
+        this.debug(`Version was not found from ${ip}`);
+
         return;
       }
 
@@ -109,6 +183,19 @@ class WebsocketServer {
       user.setVersion(usersParams.v);
 
       this.connectedUsers.set(user.id, user);
+
+      this.emit('connection', user);
+
+      socket.on('close', (code) => {
+        if (user.closed || user.closedAt) {
+          this.emit('close', user, true);
+          return; // We were expecting this
+        }
+
+        user.close(code, 'Connection closed', false, true);
+
+        this.emit('close', user, false);
+      });
 
       socket.on('message', (data) => {
         try {
@@ -122,6 +209,8 @@ class WebsocketServer {
             // (E/O) = Event or OP
             user.close(Utils.HARD_CLOSE_CODES.INVALID_REQUEST, 'Invalid request (E/O)', this.closeOnError);
 
+            this.debug(`Event or OP was not found from ${user.id} (${user.ip})`);
+
             return;
           }
 
@@ -133,12 +222,16 @@ class WebsocketServer {
             // (E) = Event (not found)
             user.close(Utils.HARD_CLOSE_CODES.UNKNOWN_OPCODE, 'Invalid request (E)', this.closeOnError);
 
+            this.debug(`Event was not found from ${user.id} with the name ${json.event || json.op} (${user.ip}) version: ${user.socketVersion}`);
+
             return;
           }
 
           if (foundEvent.authRequired && !this.connectedUsers.get(socket.id)?.authed) {
             // (A) = Auth (not authed)
             user.close(Utils.HARD_CLOSE_CODES.NOT_AUTHENTICATED, 'Invalid request (A)', this.closeOnError);
+
+            this.debug(`Event ${foundEvent.name} was not authed from ${user.id} (${user.ip})`);
 
             return;
           }
@@ -150,17 +243,23 @@ class WebsocketServer {
               // (A) = Auth (not authed)
               user.close(Utils.HARD_CLOSE_CODES.NOT_AUTHENTICATED, 'Invalid request (A)', this.closeOnError);
 
+              this.debug(`Event ${foundEvent.name} was not authed from ${user.id} (${user.ip})`);
+
               return;
             }
           }
 
           foundEvent.execute(user, json.d, this.connectedUsers);
         } catch (e: any) {
-          console.error(`Error while parsing JSON from ${ip}: ${e?.message}`);
+          this.debug(`Error while parsing JSON from ${ip}: ${e?.message}`);
+
+          this.emit('error', e, user);
 
           try {
             // (J) = JSON (invalid)
             user.close(Utils.HARD_CLOSE_CODES.DECODE_ERROR, 'Invalid request (J)', this.closeOnError);
+
+            this.debug(`JSON was invalid from ${user.id} (${user.ip})`);
           } catch (er: any) {
             console.error(`User ${ip} has already been closed`);
           }
@@ -210,7 +309,7 @@ class WebsocketServer {
         if (user.lastHeartbeat + user.heartbeatInterval + 10000 < Date.now()) {
           if (process.env.debug) {
             this.debug(
-              `User ${id} has not sent a heartbeat in ${user.heartbeatInterval + 10000}ms, closing connection`,
+              `User ${id} has not sent a heartbeat in ${user.heartbeatInterval + 10000}ms, closing connection (We got ${this.connectedUsers.size} users left)`,
             );
           }
 
@@ -223,7 +322,7 @@ class WebsocketServer {
           );
         }
       }
-    }, 1000);
+    }, this.heartbeatInterval);
   }
 
   clearUsers() {
@@ -232,14 +331,14 @@ class WebsocketServer {
         if (!user.closed) continue;
 
         // if they closed more then 65 seconds ago, remove them
-        if ((user.closedAt as number) + 65000 < Date.now()) {
+        if ((user.closedAt as number) + 5000 < Date.now()) {
           this.connectedUsers.delete(id);
-          this.debug(`User ${id} has been removed`);
+          this.debug(`User ${id} has been removed for being closed (We got ${this.connectedUsers.size} users left)`);
         } else {
           this.debug(`User ${id} has been closed for ${Date.now() - (user.closedAt as number)}ms`);
         }
       }
-    }, 5000);
+    }, this.closedInterval);
   }
 
   clearConnectedUsers() {
@@ -250,12 +349,14 @@ class WebsocketServer {
         // if its been more then 45 seconds since they connected, remove them
         if ((user.connectedAt as number) + 45000 < Date.now()) {
           this.connectedUsers.delete(id);
-          this.debug(`User ${id} has been removed`);
+          user.close(Utils.HARD_CLOSE_CODES.NOT_AUTHENTICATED, 'Not Authenticated', false);
+
+          this.debug(`User ${id} has been removed for being connected and not authed (We got ${this.connectedUsers.size} users left)`);
         } else {
           this.debug(`User ${id} has been connected for ${Date.now() - (user.connectedAt as number)}ms`);
         }
       }
-    }, 5000);
+    }, this.unauthedTimeout);
   }
 
   massSend(data: any) {
@@ -270,8 +371,19 @@ class WebsocketServer {
     }
   }
 
-  debug(...args: any[]) {
-    if (process.env.debug) console.log(...args);
+  connectionsByIP(ip: string) {
+    let connections = 0;
+
+    for (const [, user] of this.connectedUsers) {
+      if (user.ip === ip) connections++;
+    }
+
+    return connections;
+  }
+
+  debug(...args: string[]) {
+    this.emit('debug', ...args);
+    if (this.debugEnabled) console.log(...args);
   }
 }
 

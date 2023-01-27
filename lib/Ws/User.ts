@@ -1,7 +1,7 @@
 import WebSocket from 'ws';
 import Errors from './Errors';
 import Utils from './Utils';
-import zlib from 'zlib';
+import { deflateSync } from 'zlib';
 
 interface EventQueue {
   seq: boolean;
@@ -31,7 +31,8 @@ export default class User {
     [key: string]: string;
   };
   socketVersion: number | null;
-  constructor(id: string, ws: WebSocket.WebSocket, authed: boolean) {
+  ip: string;
+  constructor(id: string, ws: WebSocket.WebSocket, authed: boolean, ip: string) {
     this.id = id;
 
     Object.defineProperty(this, 'ws', {
@@ -42,6 +43,8 @@ export default class User {
     });
 
     this.authed = authed;
+
+    this.ip = ip;
 
     this.authType = null;
 
@@ -83,11 +86,7 @@ export default class User {
       return data; // just to make my life easier
     }
 
-    const input = Buffer.from(data);
-
-    const compressed = zlib.deflateSync(input);
-
-    return compressed;
+    return deflateSync(data);
   }
 
   send(data: any, seq = true) {
@@ -115,10 +114,18 @@ export default class User {
     this.ws.send(data);
   }
 
-  close(code: number, reason: string, force: boolean) {
+  close(code: number, reason: string, force: boolean, soft?: boolean) {
     try {
       if (this.closed) {
         return; // Its already closed, why are you trying to close it again?
+      }
+
+      if (soft) { // soft is when the user is closing the connection
+        this.closed = true;
+        this.closedAt = Date.now();
+        this.closedCode = code;
+
+        return;
       }
 
       if (force) {

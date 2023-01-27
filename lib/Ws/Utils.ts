@@ -58,9 +58,10 @@ class Utils {
 
   static get AUTH_CODES() {
     return {
-      USER: 1 << 0,
-      BOT: 1 << 1,
-      STAFF: 1 << 2,
+      SYSTEM: 1 << 0, // System is used for handling users & stuff, like sending out events to users
+      USER: 1 << 1,
+      BOT: 1 << 2,
+      STAFF: 1 << 3,
     };
   }
 
@@ -96,7 +97,7 @@ class Utils {
 
   static get REGEXES() {
     return {
-      TYPE: /^\/(bot|client)\//g,
+      TYPE: /^\/(bot|client|system)\//g,
       PARAMS: /[?&]([^=]+=[^&]+)/g,
     };
   }
