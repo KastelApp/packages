@@ -120,7 +120,8 @@ export default class User {
         return; // Its already closed, why are you trying to close it again?
       }
 
-      if (soft) { // soft is when the user is closing the connection
+      if (soft) {
+        // soft is when the user is closing the connection
         this.closed = true;
         this.closedAt = Date.now();
         this.closedCode = code;

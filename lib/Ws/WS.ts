@@ -151,7 +151,13 @@ export class WebsocketServer extends EventEmitter {
 
       const user = new User(socket.id, socket, false, ip);
 
-      user.setAuth(clientOrBot[1] === 'bot' ? Utils.AUTH_CODES.BOT : clientOrBot[0] === 'system' ? Utils.AUTH_CODES.SYSTEM : Utils.AUTH_CODES.USER);
+      user.setAuth(
+        clientOrBot[1] === 'bot'
+          ? Utils.AUTH_CODES.BOT
+          : clientOrBot[0] === 'system'
+          ? Utils.AUTH_CODES.SYSTEM
+          : Utils.AUTH_CODES.USER,
+      );
       user.setParams(Utils.paramsToObject(params.map((p) => p.replace(/^[?&]/, ''))));
 
       const usersParams = user.params as {
@@ -222,7 +228,11 @@ export class WebsocketServer extends EventEmitter {
             // (E) = Event (not found)
             user.close(Utils.HARD_CLOSE_CODES.UNKNOWN_OPCODE, 'Invalid request (E)', this.closeOnError);
 
-            this.debug(`Event was not found from ${user.id} with the name ${json.event || json.op} (${user.ip}) version: ${user.socketVersion}`);
+            this.debug(
+              `Event was not found from ${user.id} with the name ${json.event || json.op} (${user.ip}) version: ${
+                user.socketVersion
+              }`,
+            );
 
             return;
           }
@@ -309,7 +319,9 @@ export class WebsocketServer extends EventEmitter {
         if (user.lastHeartbeat + user.heartbeatInterval + 10000 < Date.now()) {
           if (process.env.debug) {
             this.debug(
-              `User ${id} has not sent a heartbeat in ${user.heartbeatInterval + 10000}ms, closing connection (We got ${this.connectedUsers.size} users left)`,
+              `User ${id} has not sent a heartbeat in ${user.heartbeatInterval + 10000}ms, closing connection (We got ${
+                this.connectedUsers.size
+              } users left)`,
             );
           }
 
@@ -351,7 +363,9 @@ export class WebsocketServer extends EventEmitter {
           this.connectedUsers.delete(id);
           user.close(Utils.HARD_CLOSE_CODES.NOT_AUTHENTICATED, 'Not Authenticated', false);
 
-          this.debug(`User ${id} has been removed for being connected and not authed (We got ${this.connectedUsers.size} users left)`);
+          this.debug(
+            `User ${id} has been removed for being connected and not authed (We got ${this.connectedUsers.size} users left)`,
+          );
         } else {
           this.debug(`User ${id} has been connected for ${Date.now() - (user.connectedAt as number)}ms`);
         }
