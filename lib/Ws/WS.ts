@@ -304,13 +304,13 @@ export class WebsocketServer extends EventEmitter {
     return wss;
   }
 
-  handleClose(ws: WebSocket.WebSocket): void {
+  handleClose(ws: WebSocket.WebSocket) {
     this.debug(`Connection from ${ws.id} has been closed`);
 
     if (!ws.CLOSED && !ws.CLOSING) ws.close();
   }
 
-  startHeartbeatCheck(): void {
+  startHeartbeatCheck() {
     setInterval(() => {
       for (const [id, user] of this.connectedUsers) {
         if (!user.authed) continue;
@@ -337,7 +337,7 @@ export class WebsocketServer extends EventEmitter {
     }, this.heartbeatInterval);
   }
 
-  clearUsers(): void {
+  clearUsers() {
     setInterval(() => {
       for (const [id, user] of this.connectedUsers) {
         if (!user.closed) continue;
@@ -353,7 +353,7 @@ export class WebsocketServer extends EventEmitter {
     }, this.closedInterval);
   }
 
-  clearConnectedUsers(): void {
+  clearConnectedUsers() {
     setInterval(() => {
       for (const [id, user] of this.connectedUsers) {
         if (user.authed) continue;
@@ -373,19 +373,19 @@ export class WebsocketServer extends EventEmitter {
     }, this.unauthedTimeout);
   }
 
-  massSend(data: any): void {
+  massSend(data: any) {
     for (const [, user] of this.connectedUsers) {
       user.send(data);
     }
   }
 
-  masDisconnect(reason: string, code?: number): void {
+  masDisconnect(reason: string, code?: number) {
     for (const [, user] of this.connectedUsers) {
       user.close(code ? code : Utils.HARD_CLOSE_CODES.SERVER_SHUTDOWN, reason, false);
     }
   }
 
-  connectionsByIP(ip: string): number {
+  connectionsByIP(ip: string) {
     let connections = 0;
 
     for (const [, user] of this.connectedUsers) {
@@ -395,7 +395,7 @@ export class WebsocketServer extends EventEmitter {
     return connections;
   }
 
-  debug(...args: string[]): void {
+  debug(...args: string[]) {
     this.emit('debug', ...args);
     if (this.debugEnabled) console.log(...args);
   }

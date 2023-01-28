@@ -1,5 +1,6 @@
 {
 	"compilerOptions": {
+		// Type Checking
 		"allowUnreachableCode": false,
 		"allowUnusedLabels": false,
 		"exactOptionalPropertyTypes": true,
@@ -11,19 +12,40 @@
 		"strict": true,
 		"useUnknownInCatchVariables": true,
 		"noUncheckedIndexedAccess": true,
+
 		// Modules
 		"module": "CommonJS",
 		"moduleResolution": "node",
 		"resolveJsonModule": true,
+
 		// Emit
+		"declaration": true,
+		"declarationMap": false,
+		"importHelpers": true,
+		"importsNotUsedAsValues": "preserve",
+		"inlineSources": true,
+		"newLine": "lf",
+		"noEmitHelpers": true,
+		"outDir": "dist",
+		"preserveConstEnums": true,
+		"removeComments": false,
+		"sourceMap": true,
 		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+
 		// Language and Environment
-		"lib": [
-			"ESNext"
-		],
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"lib": ["ESNext"],
 		"target": "ES2022",
+		"useDefineForClassFields": true,
+        "allowJs": true,
 	},
-	"include": [
-		"src/**/*"
-	]
+    "exclude": [
+        ".github",
+        "node_modules",
+        "dist",
+		"tests",
+		"lib/__tests__"
+    ]
 }

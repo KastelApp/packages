@@ -3,7 +3,7 @@ import Route from './Routes';
 import Snowflake from './Snowflake';
 import Ws from './Ws';
 
-declare module '@kastelll/utils' {}
+declare module '@kastelll/packages' {}
 
 declare module 'ws' {
   export interface WebSocket extends ws {
