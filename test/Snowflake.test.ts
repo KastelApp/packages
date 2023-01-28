@@ -1,4 +1,4 @@
-import Snowflake from '../Snowflake';
+import Snowflake from '../src/Snowflake/index';
 
 test('Generate', () => {
   const first = Snowflake.generate();
