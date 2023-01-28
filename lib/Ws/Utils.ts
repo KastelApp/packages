@@ -97,7 +97,7 @@ class Utils {
 
   static get REGEXES() {
     return {
-      TYPE: /^\/(bot|client|system)\//g,
+      TYPE: /^\/(bot|client|system)\/?/g,
       PARAMS: /[?&]([^=]+=[^&]+)/g,
     };
   }
