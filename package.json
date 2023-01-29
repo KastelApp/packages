@@ -1,6 +1,6 @@
 {
   "name": "@kastelll/packages",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "These are just some utils for kastelll",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
