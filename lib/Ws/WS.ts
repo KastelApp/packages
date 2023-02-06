@@ -153,10 +153,10 @@ export class WebsocketServer extends EventEmitter {
 
       user.setAuth(
         clientOrBot[0] === '/bot'
-        ? Utils.AUTH_CODES.BOT
-        : clientOrBot[0] === '/system'
-        ? Utils.AUTH_CODES.SYSTEM
-        : Utils.AUTH_CODES.USER,
+          ? Utils.AUTH_CODES.BOT
+          : clientOrBot[0] === '/system'
+          ? Utils.AUTH_CODES.SYSTEM
+          : Utils.AUTH_CODES.USER,
       );
 
       user.setParams(Utils.paramsToObject(params.map((p) => p.replace(/^[?&]/, ''))));
