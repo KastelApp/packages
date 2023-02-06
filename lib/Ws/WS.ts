@@ -152,12 +152,13 @@ export class WebsocketServer extends EventEmitter {
       const user = new User(socket.id, socket, false, ip);
 
       user.setAuth(
-        clientOrBot[1] === 'bot'
-          ? Utils.AUTH_CODES.BOT
-          : clientOrBot[0] === 'system'
-          ? Utils.AUTH_CODES.SYSTEM
-          : Utils.AUTH_CODES.USER,
+        clientOrBot[0] === '/bot'
+        ? Utils.AUTH_CODES.BOT
+        : clientOrBot[0] === '/system'
+        ? Utils.AUTH_CODES.SYSTEM
+        : Utils.AUTH_CODES.USER,
       );
+
       user.setParams(Utils.paramsToObject(params.map((p) => p.replace(/^[?&]/, ''))));
 
       const usersParams = user.params as {
