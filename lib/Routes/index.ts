@@ -147,12 +147,13 @@ class Route {
           if (!res.headersSent) {
             try {
               res.status(500).send('Internal Server Error');
+              console.error(err);
             } catch (err) {
-              // We failed to send the error, so we just log it.
+              // failed to send the error so we just will log it
               console.error(err);
             }
           } else {
-            // We failed to send the error, so we just log it.
+            // headers already sent so we just will log it
             console.error(err);
           }
         }
