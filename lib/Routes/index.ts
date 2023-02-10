@@ -140,8 +140,22 @@ class Route {
       console.log(`[Express] Setting Route: ${route.method} ${route.route}`);
 
       // @ts-expect-error - This is a valid method for Express
-      app[route.method.toLowerCase()](route.route, ...route.middleware, (req: Request, res: Response) => {
-        route.run(req, res, app);
+      app[route.method.toLowerCase()](route.route, ...route.middleware, async (req: Request, res: Response) => {
+        try {
+          await route.run(req, res, app);
+        } catch (err) {
+          if (!res.headersSent) {
+            try {
+              res.status(500).send('Internal Server Error');
+            } catch (err) {
+              // We failed to send the error, so we just log it.
+              console.error(err);
+            }
+          } else {
+            // We failed to send the error, so we just log it.
+            console.error(err);
+          }
+        }
       });
     }
 
