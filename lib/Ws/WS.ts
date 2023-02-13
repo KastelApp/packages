@@ -272,34 +272,18 @@ export class WebsocketServer extends EventEmitter {
 
             this.debug(`JSON was invalid from ${user.id} (${user.ip})`);
           } catch (er: any) {
-            console.error(`User ${ip} has already been closed`);
+            this.debug(`User ${ip} has already been closed`);
           }
         }
       });
     });
 
     wss.on('listening', () => {
-      console.log(`Websocket is ${this.server ? 'listening on server' : `now listening on port ${this.port}`}`);
+      console.log(`[Websocket] Websocket is ${this.server ? 'listening on server' : `now listening on port ${this.port}`}`);
 
       this.startHeartbeatCheck();
       this.clearUsers();
       this.clearConnectedUsers();
-
-      process.on('SIGINT', () => {
-        this.debug('Closing Websocket Sending mass discconect');
-
-        this.masDisconnect('Server is shutting down');
-
-        process.exit(0);
-      });
-
-      process.on('SIGKILL', () => {
-        this.debug('Closing Websocket Sending mass discconect');
-
-        this.masDisconnect('Server is shutting down');
-
-        process.exit(0);
-      });
     });
 
     return wss;
@@ -343,8 +327,8 @@ export class WebsocketServer extends EventEmitter {
       for (const [id, user] of this.connectedUsers) {
         if (!user.closed) continue;
 
-        // if they closed more then 65 seconds ago, remove them
-        if ((user.closedAt as number) + 5000 < Date.now()) {
+        // if they closed more then 8 seconds ago, remove them
+        if ((user.closedAt as number) + 8000 < Date.now()) {
           this.connectedUsers.delete(id);
           this.debug(`User ${id} has been removed for being closed (We got ${this.connectedUsers.size} users left)`);
         } else {
