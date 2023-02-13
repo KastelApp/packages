@@ -279,7 +279,9 @@ export class WebsocketServer extends EventEmitter {
     });
 
     wss.on('listening', () => {
-      console.log(`[Websocket] Websocket is ${this.server ? 'listening on server' : `now listening on port ${this.port}`}`);
+      console.log(
+        `[Websocket] Websocket is ${this.server ? 'listening on server' : `now listening on port ${this.port}`}`,
+      );
 
       this.startHeartbeatCheck();
       this.clearUsers();
