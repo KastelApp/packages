@@ -20,11 +20,9 @@
 	},
 	"scripts": {
 		"build": "tsup",
-		"changelog": "git cliff --prepend ./CHANGELOG.md -u -c ./cliff.toml -r ../../ --include-path 'packages/util/*'",
 		"format": "prettier --write . && cross-env TIMING=1 eslint src --ext .mjs,.js,.ts --fix --format=pretty",
 		"lint": "prettier --check . && cross-env TIMING=1 eslint src --ext .mjs,.js,.ts --format=pretty",
 		"prepack": "yarn build && yarn lint",
-		"release": "cliff-jumper",
 		"test": "vitest run"
 	},
 	"main": "./dist/index.js",
