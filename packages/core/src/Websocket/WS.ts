@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import type { Buffer } from 'node:buffer';
 import { EventEmitter } from 'node:events';
 import type http from 'node:http';
@@ -11,11 +10,6 @@ import User from './User.js';
 import Utils, { HardCloseCodes, AuthCodes, Regexes, SoftCloseCodes } from './Utils.js';
 
 export interface WebsocketServer {
-	// There are 4 listeners, one is 'connection' which emits when someone connects to the websocket
-	// The 2nd one is debug, which emits when the debug function is called
-	// The 3rd one is 'error', which emits when an error occurs
-	// The 4th one is 'close', which emits when a connection is closed
-
 	emit(event: 'connection', user: User): boolean;
 	emit(event: 'debug', message: string[] | string): boolean;
 	emit(event: 'error', error: Error, user?: User): boolean;
@@ -223,8 +217,8 @@ export class WebsocketServer extends EventEmitter {
 					}
 
 					const foundEvent =
-						Events.getEventName(json.event as string, user.SocketVersion as number) ??
-						Events.getEventCode(json.op as number, user.SocketVersion as number);
+						Events.GetEventName(json.event as string, user.SocketVersion as number) ??
+						Events.GetEventCode(json.op as number, user.SocketVersion as number);
 
 					if (!foundEvent) {
 						// (E) = Event (not found)
@@ -239,29 +233,29 @@ export class WebsocketServer extends EventEmitter {
 						return;
 					}
 
-					if (foundEvent.authRequired && !this.connectedUsers.get(socket.id)?.Authed) {
+					if (foundEvent.AuthRequired && !this.connectedUsers.get(socket.id)?.Authed) {
 						// (A) = Auth (not authed)
 						user.close(HardCloseCodes.NotAuthenticated, 'Invalid request (A)', this.closeOnError);
 
-						this.debug(`Event ${foundEvent.name} was not authed from ${user.Id} (${user.Ip})`);
+						this.debug(`Event ${foundEvent.Name} was not authed from ${user.Id} (${user.Ip})`);
 
 						return;
 					}
 
-					if (foundEvent.strictCheck) {
-						const validated = Utils.ValidateAuthCode(foundEvent.allowedAuthTypes, user.AuthType);
+					if (foundEvent.StrictCheck) {
+						const validated = Utils.ValidateAuthCode(foundEvent.AllowedAuthTypes, user.AuthType);
 
 						if (!validated) {
 							// (A) = Auth (not authed)
 							user.close(HardCloseCodes.NotAuthenticated, 'Invalid request (A)', this.closeOnError);
 
-							this.debug(`Event ${foundEvent.name} was not authed from ${user.Id} (${user.Ip})`);
+							this.debug(`Event ${foundEvent.Name} was not authed from ${user.Id} (${user.Ip})`);
 
 							return;
 						}
 					}
 
-					foundEvent.execute(user, json.d, this.connectedUsers);
+					foundEvent.Execute(user, json.d, this.connectedUsers);
 				} catch (error: any) {
 					this.debug(`Error while parsing JSON from ${ip}: ${error?.message}`);
 

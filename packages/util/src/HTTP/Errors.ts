@@ -1,50 +1,50 @@
 class HTTPErrors {
-	public code: number;
+	public Code: number;
 
-	public errors: { [key: string]: any };
+	public Errors: { [key: string]: any };
 
 	public constructor(code: number, ...errors: any[]) {
-		this.code = code;
-		this.errors = {};
+		this.Code = code;
+		this.Errors = {};
 
 		for (const error of errors) {
-			this.addError(error);
+			this.AddError(error);
 		}
 	}
 
-	public addError(error: { [key: string]: any }): void {
+	public AddError(error: { [key: string]: any }): void {
 		for (const [key, value] of Object.entries(error)) {
 			if (Array.isArray(value)) {
 				for (const [index, item] of value.entries()) {
-					if (this.errors[key]) {
-						this.errors[key][index] = item;
+					if (this.Errors[key]) {
+						this.Errors[key][index] = item;
 					} else {
-						this.errors[key] = { [index]: item };
+						this.Errors[key] = { [index]: item };
 					}
 				}
 			} else {
-				this.errors[key] = value;
+				this.Errors[key] = value;
 			}
 		}
 	}
 
-	public addToError(errorName: string, error: { [key: string]: any }): void {
+	public AddToError(errorName: string, error: { [key: string]: any }): void {
 		for (const [, value] of Object.entries(error)) {
 			if (Array.isArray(value)) {
 				for (const [index, item] of value.entries()) {
-					if (this.errors[errorName]) {
-						this.errors[errorName][index] = item;
+					if (this.Errors[errorName]) {
+						this.Errors[errorName][index] = item;
 					} else {
-						this.errors[errorName] = { [index]: item };
+						this.Errors[errorName] = { [index]: item };
 					}
 				}
 			} else {
 				for (const [keyf, valuef] of Object.entries(value)) {
-					if (this.errors[errorName]) {
-						const index = Object.keys(this.errors[errorName]).length;
-						this.errors[errorName][index] = { [keyf]: valuef };
+					if (this.Errors[errorName]) {
+						const index = Object.keys(this.Errors[errorName]).length;
+						this.Errors[errorName][index] = { [keyf]: valuef };
 					} else {
-						this.errors[errorName] = {
+						this.Errors[errorName] = {
 							0: { [keyf]: valuef },
 						};
 					}
@@ -55,8 +55,8 @@ class HTTPErrors {
 
 	public toJSON(): { code: number; errors: { [key: string]: any } } {
 		return {
-			code: this.code,
-			errors: this.errors,
+			code: this.Code,
+			errors: this.Errors,
 		};
 	}
 
@@ -64,12 +64,12 @@ class HTTPErrors {
 		return JSON.stringify(this.toJSON());
 	}
 
-	public clearErrors(): void {
-		this.errors = {};
+	public ClearErrors(): void {
+		this.Errors = {};
 	}
 
-	public clearError(errorName: string): void {
-		this.errors = Object.fromEntries(Object.entries(this.errors).filter(([key]) => key !== errorName));
+	public ClearError(errorName: string): void {
+		this.Errors = Object.fromEntries(Object.entries(this.Errors).filter(([key]) => key !== errorName));
 	}
 }
 

@@ -28,7 +28,7 @@ class Route {
 
 		this.ErrorToCut = new Error('Error to cut');
 
-		if (!this.ErrorToCut.stack) throw new Error('Stack not found'); // this is funny idk why
+		if (!this.ErrorToCut.stack) throw new Error('Stack not found');
 
 		this.ErrorToCut = this.ErrorToCut.stack.split('at');
 

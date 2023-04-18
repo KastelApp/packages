@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-unused-vars */
-
 import type User from './User.js';
 import { AuthCodes } from './Utils.js';
 
