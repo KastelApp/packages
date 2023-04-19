@@ -20,15 +20,15 @@ import { Snowflake, HTTPErrors } from '@kastelll/util';
 const SnowflakeGen = new Snowflake({
 	Epoch: 1_641_016_800_000,
 	ProcessId: process.pid,
-	ProcessIdBytes: 2,
-	SequenceBytes: 2,
-	WorkerId: 1,
-	WorkerIdBytes: 2,
+	ProcessIdBytes: 1,
+	SequenceBytes: 6,
+	WorkerId: 5,
+	WorkerIdBytes: 12,
 });
 
-const GeneratedSnowflake = SnowflakeGen.generate();
+const GeneratedSnowflake = SnowflakeGen.Generate();
 
-console.log(GeneratedSnowflake); // 536277067310956565
+console.log(GeneratedSnowflake); // 21443134786896192
 
 const HTTPError = new HTTPErrors(4000, {
 	Code: {
@@ -37,12 +37,12 @@ const HTTPError = new HTTPErrors(4000, {
 	},
 });
 
-HTTPError.addError({
+HTTPError.AddError({
 	Waffles: {
 		message: 'Invalid Waffles',
 		status: 400,
 	},
 });
 
-console.log(HTTPError.toObject()); // { Code: { message: 'Invalid Code', status: 400 }, Waffles: { message: 'Invalid Waffles', status: 400 } }
+console.log(HTTPError.toJSON()); // { Code: 4000, Errors: { Code: { Message: 'Invalid Code', Status: 400 }, Waffles: { Message: 'Invalid Waffles', Status: 400 } }
 ```

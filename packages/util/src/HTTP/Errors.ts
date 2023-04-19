@@ -53,10 +53,10 @@ class HTTPErrors {
 		}
 	}
 
-	public toJSON(): { code: number; errors: { [key: string]: any } } {
+	public toJSON(): { Code: number; Errors: { [key: string]: any } } {
 		return {
-			code: this.Code,
-			errors: this.Errors,
+			Code: this.Code,
+			Errors: this.Errors,
 		};
 	}
 

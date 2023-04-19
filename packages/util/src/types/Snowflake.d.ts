@@ -12,7 +12,4 @@ export interface SnowflakeSettings {
 	Increment: bigint;
 	TimeShift: bigint;
 	WorkerIdProcessId: bigint;
-	epoch: bigint;
-	increment: bigint;
-	timeShift: bigint;
 }
