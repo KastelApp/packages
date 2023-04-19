@@ -26,8 +26,8 @@ for package in $packags; do
             yarn workspace "@kastelll/$package" format
         fi
         
-        if [ "$doing" == "test" ]; then
-            yarn workspace "@kastelll/$package" test
+        if [ "$doing" == "build" ]; then
+            yarn workspace "@kastelll/$package" build
         fi
         
     else
