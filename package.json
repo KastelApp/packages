@@ -14,8 +14,6 @@
 		"format:affected": "turbo run format --filter='...[origin/master]' --parallel",
 		"fmt": "turbo run format --parallel",
 		"fmt:affected": "turbo run format --filter='...[origin/master]' --parallel",
-		"docs": "turbo run docs --parallel",
-		"docs:affected": "turbo run docs --filter='...[origin/master]' --parallel",
 		"postinstall": "is-ci || husky install",
 		"update": "yarn upgrade-interactive",
 		"create-package": "node packages/scripts/src/packageScript.mjs",
