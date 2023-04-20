@@ -12,8 +12,6 @@
 		"lint:affected": "turbo run lint --filter='...[origin/master]' --parallel",
 		"format": "turbo run format --parallel",
 		"format:affected": "turbo run format --filter='...[origin/master]' --parallel",
-		"fmt": "turbo run format --parallel",
-		"fmt:affected": "turbo run format --filter='...[origin/master]' --parallel",
 		"postinstall": "is-ci || husky install",
 		"update": "yarn upgrade-interactive",
 		"create-package": "node packages/scripts/src/packageScript.mjs",
