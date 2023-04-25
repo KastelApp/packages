@@ -57,3 +57,5 @@ class EventsHandler {
 }
 
 export default EventsHandler;
+
+export { EventsHandler };

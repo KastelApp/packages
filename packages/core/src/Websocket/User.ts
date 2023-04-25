@@ -13,7 +13,7 @@ interface EventQueue {
 	seq: boolean;
 }
 
-export default class User {
+class User {
 	public Id: string;
 
 	public Ws!: WebSocket.WebSocket;
@@ -268,3 +268,7 @@ export default class User {
 		}
 	}
 }
+
+export default User;
+
+export { User };

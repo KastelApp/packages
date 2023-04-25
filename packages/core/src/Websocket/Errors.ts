@@ -27,3 +27,5 @@ class Errors {
 }
 
 export default Errors;
+
+export { Errors };

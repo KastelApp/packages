@@ -36,3 +36,5 @@ class Events {
 }
 
 export default Events;
+
+export { Events };
