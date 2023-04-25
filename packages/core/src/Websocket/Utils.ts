@@ -107,4 +107,4 @@ class Utils {
 
 export default Utils;
 
-export { AuthCodes, HardCloseCodes, HardOpCodes, SoftCloseCodes, Regexes };
+export { AuthCodes, HardCloseCodes, HardOpCodes, SoftCloseCodes, Regexes, Utils as WsUtils };
