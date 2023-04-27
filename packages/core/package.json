@@ -15,8 +15,7 @@
 		"node": ">=16.9.0"
 	},
 	"directories": {
-		"lib": "src",
-		"test": "__tests__"
+		"lib": "src"
 	},
 	"scripts": {
 		"build": "tsup",
