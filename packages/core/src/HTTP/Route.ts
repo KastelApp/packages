@@ -1,6 +1,7 @@
 import { statSync, readdirSync } from 'node:fs';
 import NodePath from 'node:path';
 import process from 'node:process';
+import { RouteError, RoutesNotFound } from '@kastelll/internal';
 import type { Application, Response, Request } from 'express';
 import type { Methods, Middleware, RouteItem, Run } from '../types/Http';
 
@@ -28,18 +29,18 @@ class Route {
 
 		this.ErrorToCut = new Error('Error to cut');
 
-		if (!this.ErrorToCut.stack) throw new Error('Stack not found');
+		if (!this.ErrorToCut.stack) throw new RouteError('Stack not found');
 
 		this.ErrorToCut = this.ErrorToCut.stack.split('at');
 
 		if (this.ErrorToCut) {
 			const route = this.ErrorToCut.find((line) => line.includes('routes'));
 
-			if (!route) throw new Error('Route not found (Internal Error)');
+			if (!route) throw new RoutesNotFound('The Route Directory was not found, is it called routes?');
 
 			const routeArray = route.split('(').pop();
 
-			if (!routeArray) throw new Error('Route Array not found (Internal Error)');
+			if (!routeArray) throw new RouteError('Route array was not able to be found');
 
 			let routeArray2 = null;
 
@@ -55,12 +56,12 @@ class Route {
 				routeArray2 = routeArray.split(':').shift();
 			}
 
-			if (!routeArray2) throw new Error('Route Array 2 not found');
+			if (!routeArray2) throw new RouteError('Route array was not able to be found');
 
 			this.Dir = routeArray2;
 		}
 
-		if (!this.Dir) throw new Error('Dir not found (Internal Error)');
+		if (!this.Dir) throw new RouteError('Route Directory was not found');
 
 		this.Path = Path;
 
@@ -83,18 +84,18 @@ class Route {
 	}
 
 	public Cutter(FilePath: string, ExportPath: string) {
-		if (!FilePath) throw new Error('File Path not found (External Error)');
-		if (!ExportPath) throw new Error('Export Path not found (External Error)');
+		if (!FilePath) throw new RouteError('File Path not found (External Error)');
+		if (!ExportPath) throw new RouteError('Export Path not found (External Error)');
 
 		const SplitPath = FilePath.split('/routes') || FilePath.split('/Routes');
 
-		if (!SplitPath) throw new Error('Split Path not found (Internal Error)');
+		if (!SplitPath) throw new RouteError('Split Path not found (Internal Error)');
 
-		if (SplitPath.length === 1) throw new Error('Split Path length is 1 (Internal Error)');
+		if (SplitPath.length === 1) throw new RouteError('Split Path length is 1 (Internal Error)');
 
 		const Popped = SplitPath.pop();
 
-		if (!Popped) throw new Error('Popped not found (Internal Error)');
+		if (!Popped) throw new RouteError('Popped not found (Internal Error)');
 
 		const Split = Popped.split('/').slice(0, -1).join('/');
 
@@ -103,7 +104,7 @@ class Route {
 
 	public static SetRoutes(App: Application) {
 		if (!App) {
-			throw new Error('Please provide the Express Server (External Error)');
+			throw new RouteError('Please provide the Express Server (External Error)');
 		}
 
 		for (const Route of Routes) {
@@ -112,8 +113,8 @@ class Route {
 			// @ts-expect-error - This is a valid method
 			App[Route.method.toLowerCase()](Route.route, ...Route.middleware, async (req: Request, res: Response): void => {
 				try {
-					// eslint-disable-next-line @typescript-eslint/await-thenable
-					await Route.run(req, res, App); // eslint-disable-line @typescript-eslint/no-confusing-void-expression
+					// eslint-disable-next-line @typescript-eslint/await-thenable, @typescript-eslint/no-confusing-void-expression
+					await Route.run(req, res, App);
 					return;
 				} catch (error) {
 					if (res.headersSent) {
