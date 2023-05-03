@@ -23,6 +23,10 @@ fi
 
 # if packages is just "all" then do ls to get all the packages in the packages folder
 if [ "$packags" == "all" ]; then
+    if [ "$doing" == "build" ] || [ "$doing" == "format" ] || [ "$doing" == "lint" ]; then
+        yarn $doing
+        exit 0
+    fi
     packags=$(ls packages)
 fi
 

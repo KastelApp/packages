@@ -186,15 +186,15 @@ class CacheManager extends EventEmitter {
 		if (!this.RedisClient) throw new Error('Not connected to Redis');
 		if (!this.AllowForDangerousCommands) throw new CannotUseCommand('Not allowed to use this command');
 
-		if (!key || (typeof key !== 'string')) {
+		if (!key || typeof key !== 'string') {
 			await this.RedisClient.flushall();
-			
+
 			return;
-		}	
-		
+		}
+
 		// so we ofc don't got key, so we want to append :* to the end of the key ONLY if it doesn't already have it then we want to flush that key
 		if (!key.endsWith(':*')) await this.RedisClient.del(`${key}:*`);
-		
+
 		await this.RedisClient.del(key);
 	}
 }
