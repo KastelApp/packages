@@ -103,6 +103,25 @@ class Utils {
 			{},
 		);
 	}
+
+	public static ParseParams(input: string) {
+		const result: {
+			[key: string]: string | undefined;
+		} = {};
+
+		// eslint-disable-next-line prefer-named-capture-group, unicorn/better-regex
+		const paramsRegex = /(?:\?|&)([^=&]+)=([^&]*)/g;
+
+		let match: RegExpExecArray | null;
+
+		while ((match = paramsRegex.exec(input)) !== null) {
+			if (typeof match?.[0] === 'string' && typeof match?.[1] === 'string') {
+				result[match[1]] = match[2];
+			}
+		}
+
+		return result;
+	}
 }
 
 export default Utils;

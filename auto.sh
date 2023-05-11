@@ -48,6 +48,7 @@ if [ "$flags" != "" ]; then
     done
 fi
 
+
 if [ "$doing" != "publish" ] && [ "$doing" != "lint" ] && [ "$doing" != "format" ] && [ "$doing" != "build" ] && [ "$doing" != "install" ]; then
     echo "Invalid command"
     exit 1

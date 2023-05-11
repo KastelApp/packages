@@ -154,7 +154,7 @@ export class WebsocketServer extends EventEmitter {
 				clientOrBot[0] === '/bot' ? AuthCodes.Bot : clientOrBot[0] === '/system' ? AuthCodes.System : AuthCodes.User,
 			);
 
-			user.setParams(Utils.ParamsToObject(params.map((parm) => parm.replace(/^[&?]/, ''))));
+			user.setParams(Utils.ParseParams(req.url as string));
 
 			const usersParams = user.Params as {
 				encoding?: string; // encoding (should always be json for now)

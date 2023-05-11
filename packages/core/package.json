@@ -1,6 +1,6 @@
 {
 	"name": "@kastelll/core",
-	"version": "0.2.4",
+	"version": "0.2.6",
 	"description": "This is Kastels Core, It includes stuff like WS server, HTTP Routing etc etc",
 	"license": "GPL-3.0-or-later",
 	"keywords": [],

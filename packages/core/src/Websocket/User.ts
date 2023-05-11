@@ -43,7 +43,7 @@ class User {
 	public AuthType: number | null;
 
 	public Params: {
-		[key: string]: string;
+		[key: string]: string | undefined;
 	};
 
 	public SocketVersion: number | null;
@@ -94,11 +94,11 @@ class User {
 	public compress(data: any): Buffer | string {
 		let changedData = data;
 
-		if (typeof data !== 'string') {
+		if (typeof changedData !== 'string') {
 			changedData = JSON.stringify(data);
 		}
 
-		if (typeof data !== 'string') {
+		if (typeof changedData !== 'string') {
 			throw new TypeError('Invalid data (not a string even after conversion)');
 		}
 
@@ -205,7 +205,7 @@ class User {
 		this.Compression = compression;
 	}
 
-	public setParams(params: { [key: string]: string }) {
+	public setParams(params: { [key: string]: string | undefined }) {
 		this.Params = params;
 	}
 
