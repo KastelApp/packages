@@ -90,7 +90,7 @@ export class WebsocketServer extends EventEmitter {
 
 		this.ws = wss;
 
-		wss.on('connection', (socket, req) => {
+		wss.on('connection', (socket: WebSocket.WebSocket, req) => {
 			const ip = req.socket.remoteAddress as string;
 
 			const ipConnections = Array.from(this.connectedUsers.values()).filter((usr) => usr.Ip === ip);

@@ -1,5 +1,9 @@
 {
-	"eslint.workingDirectories": [{ "pattern": "./packages/**" }],
+	"eslint.workingDirectories": [
+		{
+			"pattern": "./packages/**"
+		}
+	],
 	"eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
 	"editor.defaultFormatter": "esbenp.prettier-vscode",
 	"editor.formatOnSave": true,
@@ -15,4 +19,7 @@
 	"files.eol": "\n",
 	"npm.packageManager": "yarn",
 	"typescript.tsdk": "node_modules/typescript/lib",
+	"[typescript]": {
+		"editor.defaultFormatter": "vscode.typescript-language-features"
+	}
 }
