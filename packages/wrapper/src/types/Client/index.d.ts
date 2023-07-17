@@ -6,6 +6,8 @@ export interface ClientOptions {
 	Websocket?: Websocket;
 	apiUrl: string;
 	token: string;
+	unAuthed?: boolean;
 	version: string;
+	worker?: Worker;
 	wsUrl: string;
 }

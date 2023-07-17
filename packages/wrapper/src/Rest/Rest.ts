@@ -20,9 +20,9 @@ class Rest {
 
 		this.Version = 'v1';
 
-		this.Url = `https://api.kastelapp.com/`;
+		this.Url = `http://localhost:62250`;
 
-		this.Api = `${this.Url}${this.Version}`;
+		this.Api = `${this.Url}/${this.Version}`;
 	}
 
 	public setToken(token: string) {
@@ -34,7 +34,7 @@ class Rest {
 	public setVersion(version: string) {
 		this.Version = version;
 
-		this.Api = `${this.Url}${this.Version}`;
+		this.Api = `${this.Url.endsWith('/') ? this.Url.slice(0, -1) : this.Url}/${this.Version}`;
 
 		return this;
 	}
@@ -42,7 +42,7 @@ class Rest {
 	public setUrl(url: string) {
 		this.Url = url;
 
-		this.Api = `${this.Url}${this.Version}`;
+		this.Api = `${this.Url.endsWith('/') ? this.Url.slice(0, -1) : this.Url}/${this.Version}`;
 
 		return this;
 	}
@@ -52,7 +52,7 @@ class Rest {
 		endpoint: string,
 		options?: RequestInit,
 	): Promise<T> {
-		const Request = await fetch(`${this.Api}/${endpoint}`, {
+		const Request = await fetch(`${this.Api}${endpoint}`, {
 			method,
 			headers: {
 				'Content-Type': options?.body
@@ -60,7 +60,7 @@ class Rest {
 						? 'multipart/form-data'
 						: 'application/json'
 					: 'application/x-www-form-urlencoded',
-				Authorization: `${this.Token}`,
+				...(this.Token ? { Authorization: `${this.Token}` } : {}),
 				'User-Agent': options?.userAgent ?? this.DefaultUserAgent,
 				...options?.headers,
 			},

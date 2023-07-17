@@ -3,16 +3,40 @@
 import EventEmitter from 'events';
 import pako from 'pako';
 import type Client from '../Client/Client.js';
-import { DefaultWebsocketSettings, ServerOpCodes } from '../Utils/Constants.js';
+import { DefaultWebsocketSettings, ServerOpCodes, HardCloseCodes, SoftCloseCodes } from '../Utils/Constants.js';
+import StringFormatter from '../Utils/StringFormatter.js';
 import type { ConnectionType, Encoding, Status, WebsocketSettings } from '../types/Misc/ConfigTypes';
+import { type WorkerData } from '../types/Misc/Worker.d';
 import type { Auth } from '../types/Websocket/Payloads/Auth.js';
 import Payloads from './Payloads.js';
 
+const OpCodes = {
+	Hello: 0, // Worker > Client
+	Hey: 1, // Client > Worker
+	Heartbeat: 2, // Worker > Client
+	Heartbeated: 3, // Client > Worker
+};
+
+const minPercentage = 0.7;
+const maxPercentage = 1;
+
 interface Websocket {
-	emit(event: 'open'): boolean;
+	emit(event: 'closed' | 'open'): boolean;
 	emit(event: 'authed', data: Auth): boolean;
-	on(event: 'open', listener: () => void): this;
+	emit(
+		event: 'unauthed',
+		data: {
+			d: unknown;
+			op: (typeof ServerOpCodes)[keyof typeof ServerOpCodes];
+			s: number;
+		},
+	): boolean;
 	on(event: 'authed', listener: (data: Auth) => void): this;
+	on(event: 'closed' | 'open', listener: () => void): this;
+	on(
+		event: 'unauthed',
+		listener: (data: { d: unknown; op: (typeof ServerOpCodes)[keyof typeof ServerOpCodes]; s: number }) => void,
+	): this;
 }
 class Websocket extends EventEmitter {
 	public Compression: boolean;
@@ -51,6 +75,14 @@ class Websocket extends EventEmitter {
 
 	private HeartBeating: NodeJS.Timeout | null;
 
+	private FailedConnectionAttempts: number;
+
+	private readonly MaxConnectionAttempts: number;
+
+	private Worker: Worker | null;
+
+	private readonly MiniSessionId: string;
+
 	public constructor(options: WebsocketSettings = DefaultWebsocketSettings, client?: Client) {
 		super();
 
@@ -80,13 +112,21 @@ class Websocket extends EventEmitter {
 
 		this.Sequence = -1;
 
-		this.Status = 'disconnected';
+		this.Status = 'Disconnected';
 
 		this.Client = client ?? null;
 
 		this.Payloads = new Payloads(this, true);
 
 		this.HeartBeating = null;
+
+		this.FailedConnectionAttempts = 0;
+
+		this.MaxConnectionAttempts = 5;
+
+		this.Worker = null;
+
+		this.MiniSessionId = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
 	}
 
 	public setToken(token: string) {
@@ -107,6 +147,12 @@ class Websocket extends EventEmitter {
 		return this;
 	}
 
+	public setWorker(worker: Worker | null) {
+		this.Worker = worker;
+
+		return this;
+	}
+
 	public connect(token?: string) {
 		if (token) {
 			this.Token = token;
@@ -120,7 +166,7 @@ class Websocket extends EventEmitter {
 
 		this.handleWebsocket();
 
-		this.Status = 'connecting';
+		this.Status = 'Connecting';
 
 		console.log(
 			this.Gateway,
@@ -185,22 +231,112 @@ class Websocket extends EventEmitter {
 				case 'Authed': {
 					const Data = Payload?.d as Auth;
 
-					console.log('[Wrapper] [Websocket] We have been authed', Payload);
+					this.FailedConnectionAttempts = 0;
+
+					console.log(
+						`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+						'We have been authed',
+						Payload,
+					);
+
+					const randomPercentage = Math.random() * (maxPercentage - minPercentage) + minPercentage;
 
 					this.SessionId = Data.SessionId;
-					this.HeartbeatInterval = Data.HeartbeatInterval;
+					this.HeartbeatInterval = Data.HeartbeatInterval * randomPercentage;
 					this.Sequence = 1;
 					this.LastHeartbeatAck = Date.now();
 					this.LastHeartbeatSent = Date.now();
-					this.Status = 'ready';
+					this.Status = 'Connected'; // Client will handle changing to Ready
 
-					this.HeartBeating = setInterval(() => {
-						console.log('[Wrapper] [Websocket] Sending heartbeat');
-						this.Payloads.Heartbeat();
-						this.LastHeartbeatSent = Date.now();
-					}, this.HeartbeatInterval);
+					if (this.Worker) {
+						this.Worker.postMessage({
+							op: OpCodes.Hey,
+							data: {
+								interval: this.HeartbeatInterval * randomPercentage,
+								session: this.MiniSessionId,
+							},
+						});
 
-					console.log('[Wrapper] [Websocket] Heartbeat interval set to', this.HeartbeatInterval);
+						this.Worker.addEventListener('message', (event: { data: WorkerData }) => {
+							if (!this.Worker) {
+								throw new Error('[Wrapper] [Websocket] No worker');
+							}
+
+							// @ts-expect-error -- waffles
+							const [eventName, op]: [keyof typeof OpCodes, number] = Object.entries(OpCodes).find(
+								([, value]) => value === event.data.op,
+							);
+
+							// eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check, sonarjs/no-nested-switch
+							switch (eventName) {
+								case 'Hello': {
+									console.log(
+										`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green(
+											'[Websocket]',
+										)} ${StringFormatter.yellow('[Worker]')}`,
+										"We've been Acknowledged",
+									);
+
+									break;
+								}
+
+								case 'Heartbeat': {
+									console.log(
+										`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green(
+											'[Websocket]',
+										)} ${StringFormatter.yellow('[Worker]')}`,
+										'We have been asked to heartbeat',
+									);
+
+									this.Payloads.Heartbeat();
+									this.LastHeartbeatSent = Date.now();
+
+									this.Worker.postMessage({
+										op: OpCodes.Heartbeated,
+										data: {
+											session: this.MiniSessionId,
+											interval: this.HeartbeatInterval * randomPercentage,
+										},
+									});
+
+									break;
+								}
+
+								default: {
+									console.log(
+										`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green(
+											'[Websocket]',
+										)} ${StringFormatter.yellow('[Worker]')}`,
+										'Unknown event',
+										eventName,
+										op,
+									);
+								}
+							}
+						});
+					} else {
+						console.warn(
+							`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+							'No worker provided, using interval. Intervals are not recommended due to tab inactivity messing with javascripts timers',
+						);
+						this.HeartBeating = setInterval(() => {
+							console.log(
+								`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+								'Sending heartbeat',
+							);
+
+							this.Payloads.Heartbeat();
+							this.LastHeartbeatSent = Date.now();
+						}, this.HeartbeatInterval * randomPercentage);
+					}
+
+					console.log(
+						`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+						'Heartbeat interval set to',
+						this.HeartbeatInterval,
+						randomPercentage,
+						this.HeartbeatInterval * randomPercentage,
+					);
 
 					this.emit('authed', Data);
 
@@ -210,16 +346,78 @@ class Websocket extends EventEmitter {
 				case 'HeartBeatAck': {
 					this.LastHeartbeatAck = Date.now();
 
-					console.log('[Wrapper] [Websocket] Heartbeat acked');
+					console.log(
+						`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+						'Heartbeat acked',
+					);
 
 					break;
 				}
 
 				default: {
-					console.log(`Unhandled payload: ${PayloadName ?? Payload?.op}`, Payload);
+					console.log(
+						`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+						'Unhandled payload:',
+						PayloadName ?? Payload?.op,
+						Payload,
+					);
+
+					if (Payload?.op && Payload.op >= 4_000) {
+						console.log(
+							`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+							'Unready event emitted',
+						);
+						this.emit('unauthed', Payload);
+					}
 				}
 			}
 		};
+
+		this.Gateway.onclose = (event) => {
+			console.log(
+				`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+				'Gateway closed, Reconnecting',
+			);
+
+			// check if its a soft close or hard close. If its hard set to Reconnecting else set to ReconnectingResumeable (use the softCloseCodes object)
+			const { code } = event;
+
+			const IsSoft = Object.entries(SoftCloseCodes).find(([, value]) => value === code);
+			const IsHard = Object.entries(HardCloseCodes).find(([, value]) => value === code);
+
+			if (IsSoft) {
+				this.Status = 'ReconnectingResumeable';
+			}
+
+			if (IsHard) {
+				this.Status = 'Reconnecting';
+			}
+
+			if (code === 1_006 || code >= 4_000) {
+				this.FailedConnectionAttempts++;
+			}
+
+			this.emit('closed');
+
+			if (this.FailedConnectionAttempts > this.MaxConnectionAttempts) {
+				console.warn(
+					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+					'Max connection attempts reached',
+				);
+			} else {
+				console.log(
+					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+					'Attempting to reconnect',
+				);
+				this.reconnect();
+			}
+		};
+	}
+
+	public reconnect() {
+		clearInterval(this.HeartBeating as NodeJS.Timeout);
+
+		this.connect(); // for now
 	}
 
 	private async handleWebsocketMessage(message: MessageEvent): Promise<{
@@ -231,7 +429,11 @@ class Websocket extends EventEmitter {
 			try {
 				return JSON.parse(message.data);
 			} catch (error) {
-				console.warn(`[Wrapper] [Websocket] Error parsing message`, error);
+				console.warn(
+					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+					'Error parsing message',
+					error,
+				);
 
 				return null;
 			}
@@ -261,7 +463,11 @@ class Websocket extends EventEmitter {
 
 									resolve(parsed);
 								} catch (error) {
-									console.warn(`[Wrapper] [Websocket] Error parsing message`, error);
+									console.warn(
+										`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+										'Error parsing message',
+										error,
+									);
 
 									resolve(null);
 								}
@@ -271,7 +477,11 @@ class Websocket extends EventEmitter {
 
 									resolve(parsed);
 								} catch (error) {
-									console.warn(`[Wrapper] [Websocket] Error parsing message`, error);
+									console.warn(
+										`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+										'Error parsing message',
+										error,
+									);
 
 									resolve(null);
 								}
@@ -283,7 +493,11 @@ class Websocket extends EventEmitter {
 
 							resolve(parsed);
 						} catch (error) {
-							console.warn(`[Wrapper] [Websocket] Error parsing message`, error);
+							console.warn(
+								`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+								'Error parsing message',
+								error,
+							);
 
 							resolve(null);
 						}
@@ -291,7 +505,11 @@ class Websocket extends EventEmitter {
 				};
 			});
 		} else {
-			console.warn(`[Wrapper] [Websocket] Unknown Payload type, here we go`, message);
+			console.warn(
+				`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+				'Unknown Payload type, here we go',
+				message,
+			);
 
 			return null;
 		}

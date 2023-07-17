@@ -1,7 +1,7 @@
 /* eslint-disable unicorn/prefer-math-trunc */
 /* eslint-disable sonarjs/no-identical-expressions */
 
-import type { WebsocketSettings } from '../types/Misc/ConfigTypes';
+import type { AuthlessRoute, WebsocketSettings } from '../types/Misc/ConfigTypes';
 
 export const DefaultWebsocketSettings: WebsocketSettings = {
 	Version: '1',
@@ -158,3 +158,74 @@ export const ServerOpCodes = {
 	MemberBan: 24,
 	MemberUpdate: 25,
 };
+
+export const HardCloseCodes = {
+	UnknownError: 4_000,
+	UnknownOpcode: 4_001,
+	DecodeError: 4_002,
+	NotAuthenticated: 4_003,
+	AuthenticationFailed: 4_004,
+	AlreadyAuthenticated: 4_005,
+	InvalidSeq: 4_007,
+	RateLimited: 4_008,
+	SessionTimedOut: 4_009,
+	InvalidRequest: 4_010,
+	ServerShutdown: 4_011,
+};
+
+export const HardOpCodes = {
+	Error: 15,
+};
+
+export const SoftCloseCodes = {
+	UnknownError: 1_000,
+	MissedHeartbeat: 1_001,
+};
+
+// export const AuthlessRoutes = [
+// 	'/',
+// 	'/login',
+// 	'/register',
+// 	'/logout',
+// 	'/verify',
+// 	'/404',
+// 	'/branding'
+// ];
+
+export const AuthlessRoutes: AuthlessRoute[] = [
+	{
+		path: /^\/$/,
+		type: 'NoAuth',
+	},
+	{
+		path: /^\/login$/,
+		redirect: '/app',
+		type: 'RedirectOnAuth',
+	},
+	{
+		path: /^\/register$/,
+		redirect: '/app',
+		type: 'RedirectOnAuth',
+	},
+	{
+		path: /^\/logout$/,
+		type: 'Auth',
+	},
+	{
+		path: /^\/verify$/,
+		type: 'NoAuth',
+	},
+	{
+		path: /^\/404$/,
+		type: 'NoAuth',
+	},
+	{
+		path: /^\/branding$/,
+		type: 'NoAuth',
+	},
+	{
+		path: /^\/app\/?.*/,
+		redirect: '/login',
+		type: 'Auth',
+	},
+];
