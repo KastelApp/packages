@@ -115,7 +115,6 @@ class Route {
 				try {
 					// eslint-disable-next-line @typescript-eslint/await-thenable, @typescript-eslint/no-confusing-void-expression
 					await Route.run(req, res, App);
-					return;
 				} catch (error) {
 					if (res.headersSent) {
 						console.error(error);

@@ -3,6 +3,7 @@ import process from 'node:process';
 import { setInterval } from 'node:timers';
 import { CannotUseCommand, DeprecatedError } from '@kastelll/internal';
 import { Redis } from 'ioredis';
+import type { ScanStreamOptions } from 'ioredis/built/types';
 
 interface CacheManager {
 	emit(event: 'Error', err: Error | unknown): boolean;
@@ -196,6 +197,20 @@ class CacheManager extends EventEmitter {
 		if (!key.endsWith(':*')) await this.RedisClient.del(`${key}:*`);
 
 		await this.RedisClient.del(key);
+	}
+
+	public async scan(options: ScanStreamOptions) {
+		if (!this.RedisClient) throw new Error('Not connected to Redis');
+
+		const stream = this.RedisClient.scanStream(options);
+
+		const keys: string[] = [];
+
+		for await (const key of stream) {
+			keys.push(...key);
+		}
+
+		return keys;
 	}
 }
 

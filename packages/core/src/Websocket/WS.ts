@@ -14,10 +14,12 @@ export interface WebsocketServer {
 	emit(event: 'debug', message: string[] | string): boolean;
 	emit(event: 'error', error: Error, user?: User): boolean;
 	emit(event: 'close', user: User, expecting: boolean): boolean;
+	emit(event: 'listening', port: number): boolean;
 	on(event: 'connection', listener: (user: User) => void): this;
 	on(event: 'debug', listener: (message: string[] | string) => void): this;
 	on(event: 'error', listener: (error: Error, user?: User) => void): this;
 	on(event: 'close', listener: (user: User, expecting: boolean) => void): this;
+	on(event: 'listening', listener: (port: number) => void): this;
 }
 
 export class WebsocketServer extends EventEmitter {
@@ -274,9 +276,11 @@ export class WebsocketServer extends EventEmitter {
 		});
 
 		wss.on('listening', () => {
-			console.log(
-				`[Websocket] Websocket is ${this.server ? 'listening on server' : `now listening on port ${this.port}`}`,
-			);
+			// console.log(
+			// 	`[Websocket] Websocket is ${this.server ? 'listening on server' : `now listening on port ${this.port}`}`,
+			// );
+
+			this.emit('listening', this.port ?? 0);
 
 			this.startHeartbeatCheck();
 			this.clearUsers();

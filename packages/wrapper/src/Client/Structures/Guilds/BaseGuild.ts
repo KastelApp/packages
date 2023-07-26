@@ -53,17 +53,9 @@ class BaseGuild {
 		}
 	}
 
-	// public get channels() {
-	//     //
-
-	//     return {
-	//         cache: {
-	//             get: (id: string) => {
-
-	//             }
-	//         }
-	//     };
-	// }
+	public get channels() {
+		return this.Client.channels.filter((channel) => channel.guildId === this.id);
+	}
 }
 
 export default BaseGuild;

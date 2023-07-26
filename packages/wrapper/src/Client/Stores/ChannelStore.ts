@@ -47,6 +47,10 @@ class ChannelStore {
 			this._currentChannel = null;
 		}
 	}
+
+	public filter(fn: (value: BaseChannel, index: number, array: BaseChannel[]) => unknown): BaseChannel[] {
+		return this.channels.array().filter(fn);
+	}
 }
 
 export { ChannelStore };

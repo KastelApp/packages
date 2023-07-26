@@ -1,4 +1,5 @@
 import { ChannelTypes } from '../../../Utils/Constants.js';
+import { Endpoints } from '../../../Utils/R&E.js';
 import type { Channel } from '../../../types/Client/Structures/channel.js';
 import type { Client } from '../../Client.js';
 
@@ -18,6 +19,8 @@ class BaseChannel {
 	public readonly parentId: string | undefined;
 
 	public readonly description: string | undefined;
+
+	private readonly _raw: Channel;
 
 	public constructor(Client: Client, RawChannel: Channel, GuildId?: string) {
 		this.Client = Client;
@@ -41,6 +44,73 @@ class BaseChannel {
 		this.parentId = RawChannel.Parent;
 
 		this.description = RawChannel.Description;
+
+		this._raw = RawChannel;
+	}
+
+	public async setName(name: string) {
+		if (!name) return false;
+
+		//
+
+		const PatchedChannel = await this.Client.Rest.patch(Endpoints.Channel(this.id), {
+			body: {
+				...this._raw,
+				Name: name,
+			},
+		});
+
+		if (PatchedChannel) {
+			//
+		}
+
+		return true;
+	}
+
+	public setDescription(description: string) {
+		if (description) {
+			//
+		}
+
+		return this;
+	}
+
+	public setPosition(position: number) {
+		if (position) {
+			//
+		}
+
+		return this;
+	}
+
+	public setParent(parentId: string) {
+		if (parentId) {
+			//
+		}
+
+		return this;
+	}
+
+	public delete() {
+		//
+
+		return this;
+	}
+
+	public toString() {
+		return `<#${this.id}>`;
+	}
+
+	public toJSON() {
+		return {
+			type: this.type,
+			id: this.id,
+			name: this.name,
+			guildId: this.guildId,
+			position: this.position,
+			parentId: this.parentId,
+			description: this.description,
+		};
 	}
 }
 

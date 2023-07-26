@@ -3,10 +3,8 @@
 import EventEmitter from 'events';
 import Rest from '../Rest/Rest.js';
 import { DefaultWebsocketSettings } from '../Utils/Constants.js';
-import StringFormatter from '../Utils/StringFormatter.js';
 import Websocket from '../Websocket/Ws.js';
 import type { ClientOptions } from '../types/Client';
-// import type { BasedUser } from '../types/Client/Structures/Users/index.js';
 import { ChannelStore, GuildStore, RoleStore, UserStore } from './Stores/index.js';
 import BaseUser from './Structures/Users/BaseUser.js';
 
@@ -16,9 +14,9 @@ interface Client {
 }
 
 class Client extends EventEmitter {
-	public readonly Rest: Rest | null;
+	public readonly Rest: Rest;
 
-	private readonly Websocket: Websocket | null;
+	private readonly Websocket: Websocket;
 
 	private Token: string | null;
 
@@ -42,9 +40,6 @@ class Client extends EventEmitter {
 
 	public constructor(options: ClientOptions) {
 		super();
-		this.Rest = options.Rest ?? null;
-
-		this.Websocket = options.Websocket ?? null;
 
 		this.Token = options.token ?? null;
 
@@ -58,24 +53,24 @@ class Client extends EventEmitter {
 
 		this.Worker = options.worker ?? null;
 
-		if (this.Websocket?.Status === 'Ready') {
-			console.warn(
-				`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.cyan(
-					'[Client]',
-				)} Websocket is already ready, we will be reconnecting...`,
-			);
-		}
-
-		if (!this.UnAuthed && !this.Websocket) {
+		if (!this.UnAuthed && !options.Websocket) {
 			this.Websocket = new Websocket(DefaultWebsocketSettings, this)
 				.setToken(this.Token)
 				.setVersion(this.Version.replace('v', ''))
 				.setUrl(this.WsUrl)
 				.setWorker(this.Worker);
+		} else if (!this.UnAuthed && options.Websocket) {
+			this.Websocket = options.Websocket;
+		} else {
+			this.Websocket = new Websocket(DefaultWebsocketSettings, this);
 		}
 
-		if (!this.Rest) {
+		if (!options.Rest) {
 			this.Rest = new Rest().setToken(this.Token).setVersion(this.Version).setUrl(this.ApiUrl);
+		} else if (options.Rest) {
+			this.Rest = options.Rest;
+		} else {
+			this.Rest = new Rest();
 		}
 
 		this.channels = new ChannelStore(this);
