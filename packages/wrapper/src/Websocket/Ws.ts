@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-globals */
 /* eslint-disable unicorn/prefer-node-protocol */
-import EventEmitter from 'events';
+import { EventEmitter } from 'events';
 import pako from 'pako';
 import type Client from '../Client/Client.js';
 import { DefaultWebsocketSettings, ServerOpCodes, HardCloseCodes, SoftCloseCodes } from '../Utils/Constants.js';

@@ -1,6 +1,6 @@
 {
 	"name": "@kastelll/wrapper",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "This is a API & WS Wrapper for Kastel, Handles almost everything",
 	"license": "GPL-3.0-or-later",
 	"keywords": [],
@@ -42,9 +42,9 @@
 		}
 	],
 	"devDependencies": {
-		"@types/pako": "^2.0.0",
 		"@favware/cliff-jumper": "^1.10.0",
 		"@types/node": "16.18.11",
+		"@types/pako": "^2.0.0",
 		"@vitest/coverage-c8": "^0.27.1",
 		"cross-env": "^7.0.3",
 		"eslint": "^8.31.0",
