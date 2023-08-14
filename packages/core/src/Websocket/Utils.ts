@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/prefer-math-trunc */
 import crypto from 'node:crypto';
 
 const HardCloseCodes = {
@@ -24,7 +25,7 @@ const SoftCloseCodes = {
 };
 
 const AuthCodes = {
-	System: Math.trunc(1), // System is used for handling users & stuff, like sending out events to users
+	System: 1 << 0, // System is used for handling users & stuff, like sending out events to users
 	User: 1 << 1,
 	Bot: 1 << 2,
 	Staff: 1 << 3,

@@ -38,6 +38,7 @@ interface Websocket {
 		listener: (data: { d: unknown; op: (typeof ServerOpCodes)[keyof typeof ServerOpCodes]; s: number }) => void,
 	): this;
 }
+
 class Websocket extends EventEmitter {
 	public Compression: boolean;
 

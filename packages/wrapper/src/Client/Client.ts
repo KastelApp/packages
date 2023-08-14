@@ -3,14 +3,17 @@
 import EventEmitter from 'events';
 import Rest from '../Rest/Rest.js';
 import { DefaultWebsocketSettings } from '../Utils/Constants.js';
+import StringFormatter from '../Utils/StringFormatter.js';
 import Websocket from '../Websocket/Ws.js';
 import type { ClientOptions } from '../types/Client';
+import type { BasedGuild } from '../types/Client/Structures/Guilds/index.js';
 import { ChannelStore, GuildStore, RoleStore, UserStore } from './Stores/index.js';
+import BaseGuild from './Structures/Guilds/BaseGuild.js';
 import BaseUser from './Structures/Users/BaseUser.js';
 
 interface Client {
-	emit(event: 'ready' | 'unready'): boolean;
-	on(event: 'ready' | 'unready', listener: () => void): this;
+	emit(event: 'ready' | 'unAuthed' | 'unReady'): boolean;
+	on(event: 'ready' | 'unAuthed' | 'unReady', listener: () => void): this;
 }
 
 class Client extends EventEmitter {
@@ -101,11 +104,20 @@ class Client extends EventEmitter {
 		this.Websocket.on('authed', (data) => {
 			this.users.set(data.User.Id, new BaseUser(this, data.User, true));
 
+			for (const guild of data.Guilds) {
+				console.log(
+					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.orange('[Client')} Adding guild ${guild.Name} (${
+						guild.Id
+					})`,
+				);
+				this.guilds.set(guild.Id, new BaseGuild(this, guild as unknown as BasedGuild));
+			}
+
 			this.emit('ready');
 		});
 
 		this.Websocket.on('unauthed', () => {
-			this.emit('unready');
+			this.emit('unAuthed');
 		});
 	}
 

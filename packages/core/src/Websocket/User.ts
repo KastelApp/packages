@@ -1,4 +1,5 @@
 import type { Buffer } from 'node:buffer';
+import { deprecate } from 'node:util';
 import { deflateSync } from 'node:zlib';
 import type WebSocket from 'ws';
 import Errors from './Errors.js';
@@ -50,6 +51,8 @@ class User {
 
 	public Ip: string;
 
+	private ResumeDepWarning: boolean = false;
+
 	public constructor(id: string, ws: WebSocket.WebSocket, authed: boolean, ip: string) {
 		this.Id = id;
 
@@ -91,7 +94,7 @@ class User {
 		this.Params = {};
 	}
 
-	public compress(data: any): Buffer | string {
+	public Compress(data: any): Buffer | string {
 		let changedData = data;
 
 		if (typeof changedData !== 'string') {
@@ -109,7 +112,7 @@ class User {
 		return deflateSync(changedData);
 	}
 
-	public send(data: any, seq = true) {
+	public Send(data: any, seq = true) {
 		// if seq is true, it will add a sequence number to the data else it will not
 		if (this.Closed) {
 			if (Date.now() - (this.ClosedAt as number) <= 60_000) {
@@ -127,7 +130,7 @@ class User {
 			this.Seq++;
 		}
 
-		const changedData = this.compress({
+		const changedData = this.Compress({
 			...data,
 			// eslint-disable-next-line id-length
 			...(seq ? { s: this.Seq } : {}),
@@ -136,7 +139,7 @@ class User {
 		this.Ws.send(changedData);
 	}
 
-	public close(code: number, reason: string, force: boolean, soft?: boolean) {
+	public Close(code: number, reason: string, force: boolean, soft?: boolean) {
 		try {
 			if (this.Closed) {
 				return; // Its already closed, why are you trying to close it again?
@@ -169,51 +172,110 @@ class User {
 		}
 	}
 
+	/**
+	 * @deprecated Just do `this.Authed = true` or `this.Authed = false` Will be removed in 0.4.0
+	 * @param authed - Whether the user is authenticated or not
+	 */
 	public setAuthed(authed: boolean) {
 		this.Authed = authed;
 	}
 
+	/**
+	 * @deprecated Just do `this.Closed = true` or `this.Closed = false` Will be removed in 0.4.0
+	 * @param closed - Whether the user is closed or not
+	 */
 	public setClosed(closed: boolean) {
 		this.Closed = closed;
 	}
 
+	/**
+	 * @deprecated Just do `this.Id = sessionId` Will be removed in 0.4.0
+	 * @param sessionId - The session id of the user
+	 */
 	public setSessionId(sessionId: string) {
 		this.Id = sessionId;
 	}
 
+	/**
+	 * @deprecated Just do `this.Ws = ws` Will be removed in 0.4.0
+	 * @param ws - The websocket of the user
+	 */
 	public setWs(ws: WebSocket.WebSocket) {
 		this.Ws = ws;
 	}
 
+	/**
+	 * @deprecated Just do `this.HeartbeatInterval = interval` Will be removed in 0.4.0
+	 * @param interval - The interval of the heartbeat
+	 */
 	public setHeartbeatInterval(interval: number) {
 		this.HeartbeatInterval = interval;
 	}
 
+	/**
+	 * @deprecated Just do `this.LastHeartbeat = lastHeartbeat` Will be removed in 0.4.0
+	 * @param lastHeartbeat - The last heartbeat of the user
+	 */
 	public setLastHeartbeat(lastHeartbeat: number) {
 		this.LastHeartbeat = lastHeartbeat;
 	}
 
+	/**
+	 * @deprecated Just do `this.AuthType = auth` Will be removed in 0.4.0
+	 * @param auth - The auth type of the user
+	 */
 	public setAuth(auth: number) {
 		this.AuthType = auth;
 	}
 
+	/**
+	 * @deprecated Just do `this.Encoding = encoding` Will be removed in 0.4.0
+	 * @param encoding - The encoding of the user
+	 */
 	public setEncoding(encoding: 'json') {
 		this.Encoding = encoding;
 	}
 
+	/**
+	 * @deprecated Just do `this.Compression = compression` Will be removed in 0.4.0
+	 * @param compression - Whether the payloads are compressed or not
+	 */
 	public setCompression(compression: boolean) {
 		this.Compression = compression;
 	}
 
+	/**
+	 * @deprecated Just do `this.Params = params` Will be removed in 0.4.0
+	 * @param params - The params of the user
+	 */
 	public setParams(params: { [key: string]: string | undefined }) {
 		this.Params = params;
 	}
 
+	/**
+	 * @deprecated Just do `this.SocketVersion = Number.parseInt(version, 10)` Will be removed in 0.4.0
+	 * @param version - The version of the socket
+	 */
 	public setVersion(version: string) {
 		this.SocketVersion = Number.parseInt(version, 10);
 	}
 
+	/**
+	 * @deprecated Use {@link User#Resume} instead. Will be removed in 0.4.0
+	 * @param seq - The sequence number to resume with
+	 * @returns Whether the resume was successful or not
+	 */
 	public resume(seq: number): boolean {
+		if (!this.ResumeDepWarning) {
+			deprecate(() => {
+				this.ResumeDepWarning = true;
+			}, 'Use User#Resume instead, User#resume will be removed in 0.4.0');
+		}
+
+		return this.Resume(seq);
+	}
+
+	public Resume(seq: number): boolean {
 		if (!this.Closed || !this.ClosedAt) {
 			return false; // how can you resume if you never closed?
 		}
@@ -237,7 +299,7 @@ class User {
 		return true;
 	}
 
-	public nextQueue(): EventQueue | null {
+	public NextQueue(): EventQueue | null {
 		if (this.EventQueue.length === 0) {
 			return null;
 		}
@@ -248,12 +310,12 @@ class User {
 			return null;
 		}
 
-		this.send(event.e, event.seq);
+		this.Send(event.e, event.seq);
 
 		return event;
 	}
 
-	public queue() {
+	public Queue() {
 		// loop through the queue and call nextQueue after sending the first event
 		const firstEvent = this.EventQueue[0];
 
@@ -261,9 +323,9 @@ class User {
 			return;
 		}
 
-		this.send(firstEvent.e, firstEvent.seq);
+		this.Send(firstEvent.e, firstEvent.seq);
 
-		while (this.nextQueue()) {
+		while (this.NextQueue()) {
 			// do nothing
 		}
 	}

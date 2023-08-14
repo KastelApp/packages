@@ -38,6 +38,10 @@ class GuildStore {
 		return this.guilds.get(this._currentGuild ?? '');
 	}
 
+	public get toArray(): BaseGuild[] {
+		return this.guilds.array();
+	}
+
 	public setCurrentGuild(value: BaseGuild | string | undefined) {
 		if (value instanceof BaseGuild) {
 			this._currentGuild = value.id;
