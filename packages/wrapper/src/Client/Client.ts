@@ -6,6 +6,7 @@ import { DefaultWebsocketSettings } from '../Utils/Constants.js';
 import StringFormatter from '../Utils/StringFormatter.js';
 import Websocket from '../Websocket/Ws.js';
 import type { ClientOptions } from '../types/Client';
+import GuildMemberStore from './Stores/Guild/GuildMemberStore.js';
 import { ChannelStore, GuildStore, RoleStore, UserStore } from './Stores/index.js';
 import BaseGuild from './Structures/Guilds/BaseGuild.js';
 import BaseUser from './Structures/Users/BaseUser.js';
@@ -39,6 +40,8 @@ class Client extends EventEmitter {
 	public readonly roles: RoleStore;
 
 	public readonly users: UserStore;
+
+	public readonly guildMembers: GuildMemberStore;
 
 	public constructor(options: ClientOptions) {
 		super();
@@ -82,6 +85,8 @@ class Client extends EventEmitter {
 		this.roles = new RoleStore(this);
 
 		this.users = new UserStore(this);
+
+		this.guildMembers = new GuildMemberStore(this);
 	}
 
 	public setToken(token: string): void {

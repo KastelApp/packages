@@ -1,10 +1,40 @@
+import type Client from '../../Client';
+import type GuildMember from '../../Structures/Guilds/GuildMember';
 import BaseStore from '../BaseStore.js';
 
 /**
- * A store for roles.
+ * A store for guild members
  */
-class RoleStore<K, V> extends BaseStore<K, V> {}
+class GuildMemberStore {
+	public members: BaseStore<string, GuildMember>;
 
-export { RoleStore };
+	private readonly client: Client;
 
-export default RoleStore;
+	public constructor(client: Client) {
+		this.members = new BaseStore<string, GuildMember>();
+
+		this.client = client;
+
+		if (this.client) {
+			//
+		}
+	}
+
+	public get(id: string): GuildMember | undefined {
+		return this.members.get(id);
+	}
+
+	public set(id: string, value: GuildMember): this {
+		this.members.set(id, value);
+
+		return this;
+	}
+
+	public toArray(): GuildMember[] {
+		return this.members.array();
+	}
+}
+
+export { GuildMemberStore };
+
+export default GuildMemberStore;

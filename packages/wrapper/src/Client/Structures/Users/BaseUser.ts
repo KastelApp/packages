@@ -28,6 +28,8 @@ class BaseUser {
 
 	public readonly globalNickname: string | null;
 
+	public readonly bio: string | null;
+
 	private readonly _client: boolean = false;
 
 	public constructor(Client: Client, RawUser: UserObject, isClient?: boolean) {
@@ -55,17 +57,25 @@ class BaseUser {
 
 		this.flags = this._RawUser.PublicFlags;
 
-		this.twoFaEnabled = this._RawUser.TwoFaEnabled;
+		this.twoFaEnabled = this._RawUser.TwoFaEnabled ?? false;
 
-		this.twoFaVerified = this._RawUser.TwoFaVerified;
+		this.twoFaVerified = this._RawUser.TwoFaVerified ?? false;
 
 		this.globalNickname = null;
+
+		this.bio = this._RawUser.Bio ?? null;
 
 		this._client = isClient ?? false;
 	}
 
 	public set RawUser(RawUser: UserObject) {
 		this._RawUser = RawUser;
+	}
+
+	public fetchUser(bio = false) {
+		if (bio) {
+			// wad
+		}
 	}
 
 	public isClient(): boolean {

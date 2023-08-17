@@ -4,6 +4,8 @@ import type { Channel } from '../../../types/Rest/Responses/Channel.js';
 import type { Guild } from '../../../types/Websocket/Payloads/Auth.js';
 import type { Client } from '../../Client.js';
 import BaseChannel from '../Channels/BaseChannel.js';
+import BaseUser from '../Users/BaseUser.js';
+import GuildMember from './GuildMember.js';
 import Role from './Role.js';
 
 class BaseGuild {
@@ -61,6 +63,32 @@ class BaseGuild {
 				continue;
 			} else {
 				this.Client.roles.set(role.Id, new Role(this.Client, role, this.id));
+			}
+		}
+
+		for (const guildMember of RawGuild.Members) {
+			if (this.Client.guildMembers.get(guildMember.User.Id)) {
+				continue;
+			} else {
+				if (!this.Client.users.get(guildMember.User.Id)) {
+					this.Client.users.set(
+						guildMember.User.Id,
+						new BaseUser(
+							this.Client,
+							{
+								Avatar: guildMember.User.Avatar,
+								GlobalNickname: guildMember.User.GlobalNickname,
+								Id: guildMember.User.Id,
+								PublicFlags: Number(guildMember.User.Flags),
+								Tag: guildMember.User.Tag,
+								Username: guildMember.User.Username,
+							},
+							false,
+						),
+					);
+				}
+
+				this.Client.guildMembers.set(guildMember.User.Id, new GuildMember(this.Client, guildMember, this));
 			}
 		}
 	}

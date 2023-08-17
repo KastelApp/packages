@@ -9,16 +9,16 @@ interface PermissionOverride {
 
 interface UserObject {
 	Avatar: string | null;
-	Bio: string | null;
-	Email: string;
-	EmailVerified: boolean;
+	Bio?: string;
+	Email?: string;
+	EmailVerified?: boolean;
 	GlobalNickname: string | null;
 	Id: string;
-	PhoneNumber: string | null;
+	PhoneNumber?: string | null;
 	PublicFlags: number;
 	Tag: string;
-	TwoFaEnabled: boolean;
-	TwoFaVerified: boolean;
+	TwoFaEnabled?: boolean;
+	TwoFaVerified?: boolean;
 	Username: string;
 }
 
@@ -60,6 +60,21 @@ interface Channel {
 	Type: number;
 }
 
+interface Member {
+	JoinedAt: Date;
+	Nickname: string;
+	Owner: boolean;
+	Roles: string[];
+	User: {
+		Avatar: string;
+		Flags: string;
+		GlobalNickname: string;
+		Id: string;
+		Tag: string;
+		Username: string;
+	};
+}
+
 interface Guild {
 	Channels: Channel[];
 	CoOwners: string[];
@@ -69,6 +84,7 @@ interface Guild {
 	Icon: string | null;
 	Id: string;
 	MaxMembers: number;
+	Members: Member[];
 	Name: string;
 	OwnerId: string;
 	Roles: Role[];
@@ -83,4 +99,4 @@ export default interface IdentifyPayload {
 	User: UserObject;
 }
 
-export type { UserObject, Settings, Mention, Role, Channel, Guild, IdentifyPayload, PermissionOverride };
+export type { UserObject, Settings, Mention, Role, Channel, Guild, IdentifyPayload, PermissionOverride, Member };
