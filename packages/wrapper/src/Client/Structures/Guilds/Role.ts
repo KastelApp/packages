@@ -1,5 +1,6 @@
 import type { Role as RoleType } from '../../../types/Websocket/Payloads/Auth.js';
 import type { Client } from '../../Client.js';
+import Permissions from '../Permissions.js';
 
 class Role {
 	private readonly Client: Client;
@@ -8,9 +9,11 @@ class Role {
 
 	public id: string;
 
+	public guildId: string;
+
 	public name: string;
 
-	public permissions: bigint;
+	public permissions: Permissions;
 
 	public position: number;
 
@@ -24,7 +27,7 @@ class Role {
 
 	public allowedMentions: number;
 
-	public constructor(client: Client, RawRole: RoleType) {
+	public constructor(client: Client, RawRole: RoleType, guildId: string) {
 		this.Client = client;
 
 		if (!this.Client) {
@@ -35,7 +38,7 @@ class Role {
 
 		this.name = RawRole.Name;
 
-		this.permissions = BigInt(RawRole.Permissions);
+		this.permissions = new Permissions(RawRole.Permissions);
 
 		this.position = RawRole.Position;
 
@@ -48,6 +51,8 @@ class Role {
 		this.allowedNsfw = RawRole.AllowedNsfw;
 
 		this.allowedMentions = RawRole.AllowedMenions;
+
+		this.guildId = guildId;
 
 		// this.raw_ = RawRole;
 	}

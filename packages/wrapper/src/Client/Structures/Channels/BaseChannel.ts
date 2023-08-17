@@ -2,6 +2,7 @@ import { ChannelTypes } from '../../../Utils/Constants.js';
 import { Endpoints } from '../../../Utils/R&E.js';
 import type { Channel } from '../../../types/Websocket/Payloads/Auth.js';
 import type { Client } from '../../Client.js';
+import Permissions from '../Permissions.js';
 
 class BaseChannel {
 	private readonly Client: Client;
@@ -19,6 +20,15 @@ class BaseChannel {
 	public parentId: string | undefined;
 
 	public readonly description: string | undefined;
+
+	public permissionsOverrides: {
+		allow: Permissions;
+		deny: Permissions;
+		editable: boolean;
+		id: string;
+		slowmode: number;
+		type: number;
+	}[];
 
 	public children: string[] = [];
 
@@ -48,6 +58,15 @@ class BaseChannel {
 		this.description = RawChannel.Description;
 
 		this.children = RawChannel.Children;
+
+		this.permissionsOverrides = RawChannel.PermissionsOverrides.map((override) => ({
+			allow: new Permissions(override.Allow),
+			deny: new Permissions(override.Deny),
+			id: override.Id,
+			type: override.Type,
+			slowmode: override.Slowmode,
+			editable: override.Editable,
+		}));
 
 		this._raw = RawChannel;
 	}

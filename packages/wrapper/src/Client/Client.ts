@@ -36,7 +36,7 @@ class Client extends EventEmitter {
 
 	public readonly guilds: GuildStore;
 
-	public readonly roles: RoleStore<string, unknown>;
+	public readonly roles: RoleStore;
 
 	public readonly users: UserStore;
 
@@ -79,7 +79,7 @@ class Client extends EventEmitter {
 
 		this.guilds = new GuildStore(this);
 
-		this.roles = new RoleStore();
+		this.roles = new RoleStore(this);
 
 		this.users = new UserStore(this);
 	}

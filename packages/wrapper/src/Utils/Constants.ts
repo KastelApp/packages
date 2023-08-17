@@ -10,12 +10,7 @@ export const DefaultWebsocketSettings: WebsocketSettings = {
 	Compress: true,
 };
 
-export const GuildFlags = {
-	Verified: 1 << 0,
-	Partnered: 1 << 1,
-	Official: 1 << 2,
-	NoOwner: 1 << 10,
-};
+export const GuildFeatures = ['Partnered', 'Verified', 'Official'] as const;
 
 export const GuildMemberFlags = {
 	Left: 1 << 0,
@@ -48,6 +43,8 @@ export const MessageFlags = {
 	System: 1 << 0,
 	Normal: 1 << 1,
 	Reply: 1 << 2,
+	Deleted: 1 << 3, // NOTE: this is only used when the message has the reported flag
+	Reported: 1 << 4, // Note: this is private to the users (they won't receive the flag)
 };
 
 export const Flags = {
@@ -64,17 +61,6 @@ export const Flags = {
 	MajorBugHunterBadge: 1n << 10n,
 	Ghost: 1n << 25n,
 	System: 1n << 26n,
-	Staff: 1n << 27n,
-	BetaTester: 1n << 28n,
-	Bot: 1n << 29n,
-	VerifiedBot: 1n << 30n,
-	Spammer: 1n << 31n,
-	Tos: 1n << 32n,
-	GuildBan: 1n << 33n,
-	FriendBan: 1n << 34n,
-	GroupchatBan: 1n << 35n,
-	WaitingOnAccountDeletion: 1n << 36n,
-	WaitingOnDisableDataUpdate: 1n << 37n,
 };
 
 export const MixedPermissions = {
@@ -121,6 +107,12 @@ export const RelationshipFlags = {
 	Friend: 1 << 2,
 	Denied: 1 << 3,
 	MutualFriend: 1 << 4,
+};
+
+export const PermissionOverrideTypes = {
+	Role: 1 << 0,
+	Member: 1 << 1,
+	Everyone: 1 << 2,
 };
 
 export const ServerOpCodes = {

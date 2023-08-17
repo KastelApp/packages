@@ -4,6 +4,7 @@ import type { Channel } from '../../../types/Rest/Responses/Channel.js';
 import type { Guild } from '../../../types/Websocket/Payloads/Auth.js';
 import type { Client } from '../../Client.js';
 import BaseChannel from '../Channels/BaseChannel.js';
+import Role from './Role.js';
 
 class BaseGuild {
 	private readonly Client: Client;
@@ -54,10 +55,22 @@ class BaseGuild {
 				this.Client.channels.set(channel.Id, new BaseChannel(this.Client, channel, this.id));
 			}
 		}
+
+		for (const role of RawGuild.Roles) {
+			if (this.Client.roles.get(role.Id)) {
+				continue;
+			} else {
+				this.Client.roles.set(role.Id, new Role(this.Client, role, this.id));
+			}
+		}
 	}
 
 	public get channels() {
 		return this.Client.channels.filter((channel) => channel.guildId === this.id);
+	}
+
+	public get roles() {
+		return this.Client.roles.filter((role) => role.guildId === this.id);
 	}
 
 	public async createChannel({
