@@ -123,63 +123,60 @@ export const RelationshipFlags = {
 	MutualFriend: 1 << 4,
 };
 
-export const ClientOpCodes = {
-	Auth: 1,
-	Heartbeat: 3,
-	Resume: 26,
-	LazyRequestMembers: 27,
-	LazyRequestGuild: 28,
-};
-
 export const ServerOpCodes = {
-	Hello: 0,
-	Authed: 2,
-	HeartBeat: 3,
-	HeartBeatAck: 4,
-	MessageCreate: 5,
-	MessageDelete: 6,
-	MessageUpdate: 7,
-	PurgeMessages: 8,
-	ChannelDelete: 9,
-	ChannelNew: 10,
-	ChannelUpdate: 11,
-	GuildDelete: 12,
-	GuildNew: 13,
-	GuildUpdate: 14,
-	GuildRemove: 15,
-	InviteDelete: 16,
-	InviteNew: 17,
-	PurgeInvites: 18,
-	RoleDelete: 19,
-	RoleNew: 20,
-	RoleUpdate: 21,
-	MemberAdd: 22,
-	MemberLeave: 23,
-	MemberBan: 24,
-	MemberUpdate: 25,
+	Hello: 0, // This is the first thing you get when you connect (just so you know we know you exist)
+	Auth: 1, // You send this to Identify yourself
+	Authed: 2, // This gets sent to you when you are authenticated
+	HeartBeat: 3, // This is a heartbeat to keep the connection alive (you send this)
+	HeartBeatAck: 4, // This is a heartbeat to keep the connection alive (you get this)
+	MessageCreate: 5, // This is a message being sent to a channel
+	MessageDelete: 6, // This is a message being deleted from a channel
+	MessageUpdate: 7, // This is a message being updated from a channel
+	PurgeMessages: 8, // This is a message being purged from a channel
+	ChannelDelete: 9, // This is a channel being deleted
+	ChannelNew: 10, // This is a channel being created
+	ChannelUpdate: 11, // This is a channel being updated
+	GuildDelete: 12, // This is a guild being deleted
+	GuildNew: 13, // This is a guild being created
+	GuildUpdate: 14, // This is a guild being updated
+	GuildRemove: 15, // This is a user being removed from a guild
+	InviteDelete: 16, // This is an invite being deleted
+	InviteNew: 17, // This is an invite being created
+	PurgeInvites: 18, // This is an invite being purged
+	RoleDelete: 19, // This is a role being deleted
+	RoleNew: 20, // This is a role being created
+	RoleUpdate: 21, // This is a role being updated
+	MemberAdd: 22, // This is a member being added to a guild
+	MemberLeave: 23, // This is a member being removed from a guild
+	MemberBan: 24, // This is a member being banned from a guild
+	MemberUpdate: 25, // This is a member being updated
+	Resume: 26, // This is a resume request
+	LazyRequestMembers: 27, // This is a request for members
+	LazyRequestGuild: 28, // This is a request for a guild
+	NewSession: 29,
+	DeleteSession: 30,
+	SelfUpdate: 31,
+	RelationshipUpdate: 32,
+	Error: 33,
 };
 
 export const HardCloseCodes = {
-	UnknownError: 4_000,
-	UnknownOpcode: 4_001,
-	DecodeError: 4_002,
-	NotAuthenticated: 4_003,
-	AuthenticationFailed: 4_004,
-	AlreadyAuthenticated: 4_005,
-	InvalidSeq: 4_007,
-	RateLimited: 4_008,
-	SessionTimedOut: 4_009,
-	InvalidRequest: 4_010,
-	ServerShutdown: 4_011,
-};
-
-export const HardOpCodes = {
-	Error: 15,
+	UnknownError: 4_000, // Unknown error
+	UnknownOpcode: 4_001, // Unknown opcode
+	DecodeError: 4_002, // Failed to decode payload
+	NotAuthenticated: 4_003, // Not authenticated (no IDENTIFY payload sent)
+	AuthenticationFailed: 4_004, // Authentication failed (wrong password or just an error)
+	AlreadyAuthenticated: 4_005, // Already authenticated (why are you sending another IDENTIFY payload?)
+	InvalidSeq: 4_007, // Invalid sequence sent when resuming (seq is 5 but the resume payload provided a seq of 4)
+	RateLimited: 4_008, // User spammed the gateway (not used yet)
+	SessionTimedOut: 4_009, // session timed out
+	InvalidRequest: 4_010, // Invalid request (E/O)
+	ServerShutdown: 4_011, // Server is shutting down
 };
 
 export const SoftCloseCodes = {
-	UnknownError: 1_000,
-	MissedHeartbeat: 1_001,
+	UnknownError: 1_000, // Unknown error
+	MissedHeartbeat: 1_001, // Missed heartbeat
 };
 
 // export const AuthlessRoutes = [

@@ -1,3 +1,7 @@
 {
-	"extends": "../../.eslintrc.json"
+	"extends": "../../.eslintrc.json",
+	"rules": {
+		"promise/prefer-await-to-then": "off",
+		"promise/prefer-await-to-callbacks": "off"
+	}
 }

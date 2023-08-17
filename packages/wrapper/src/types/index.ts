@@ -1,4 +1,3 @@
-import type * as Structs from './Client/Structures/Users/index';
 import type * as Client from './Client/index';
 import type * as Misc from './Misc/index';
 import type * as Payloads from './Websocket/Payloads/Auth';
@@ -8,5 +7,4 @@ export interface Types {
 	Client: typeof Client;
 	Misc: typeof Misc;
 	Payloads: typeof Payloads;
-	Structs: typeof Structs;
 }

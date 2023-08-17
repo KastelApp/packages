@@ -1,5 +1,5 @@
 export interface SnowConfig {
-	Epoch: number;
+	Epoch: bigint;
 	ProcessId: number;
 	ProcessIdBytes: number;
 	SequenceBytes: number;

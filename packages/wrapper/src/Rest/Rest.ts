@@ -40,61 +40,93 @@ class Rest {
 	}
 
 	public setUrl(url: string) {
-		this.Url = url;
+		this.Url = url.startsWith('http') ? url : `http://${url}`;
 
 		this.Api = `${this.Url.endsWith('/') ? this.Url.slice(0, -1) : this.Url}/${this.Version}`;
 
 		return this;
 	}
 
-	public async fetch<T>(
+	public async fetch<T = any>(
 		method: 'DELETE' | 'GET' | 'PATCH' | 'POST' | 'PUT',
 		endpoint: string,
 		options?: RequestInit,
-	): Promise<T> {
-		const Request = await fetch(`${this.Api}${endpoint}`, {
-			method,
-			headers: {
-				'Content-Type': options?.body
-					? options?.body instanceof FormData
-						? 'multipart/form-data'
-						: 'application/json'
-					: 'application/x-www-form-urlencoded',
-				...(this.Token ? { Authorization: `${this.Token}` } : {}),
-				'User-Agent': options?.userAgent ?? this.DefaultUserAgent,
-				...options?.headers,
-			},
-			...(options?.body
-				? { body: options?.body instanceof FormData ? options?.body : JSON.stringify(options?.body) }
-				: {}),
+	): Promise<{
+		headers: Headers | null;
+		json: T;
+		statusCode: number;
+		text: string;
+	}> {
+		return new Promise((resolve) => {
+			const Headers: any = options?.headers ?? {};
+
+			if (options?.body) {
+				if (options?.body instanceof FormData) {
+					Headers['Content-Type'] = 'multipart/form-data';
+				} else {
+					Headers['Content-Type'] = 'application/json';
+				}
+			}
+
+			if (this.Token) {
+				Headers.Authorization = `${this.Token}`;
+			}
+
+			Headers['User-Agent'] = options?.userAgent ?? this.DefaultUserAgent;
+
+			void fetch(`${this.Api}${endpoint}`, {
+				method,
+				headers: Headers,
+				...(options?.body
+					? { body: options?.body instanceof FormData ? options?.body : JSON.stringify(options?.body) }
+					: {}),
+			})
+				.catch((error) => {
+					console.log('Failed to create the channel', error);
+
+					resolve({
+						statusCode: 500,
+						text: '',
+						headers: null,
+						json: null as any,
+					});
+				})
+				.then(async (res) => {
+					if (res) {
+						const headers = res.headers;
+						const text = await res.text();
+
+						const ShouldParse =
+							headers.has('content-type') && headers.get('content-type')?.includes('application/json');
+
+						resolve({
+							statusCode: res.status,
+							text,
+							headers,
+							json: ShouldParse ? JSON.parse(text) : null,
+						});
+					}
+				});
 		});
-
-		const Text = await Request.text(); // we make it text so we can then check if its json or not etc etc
-
-		try {
-			return JSON.parse(Text);
-		} catch {
-			return Text as unknown as T;
-		}
 	}
 
-	public async get<T>(endpoint: string, options?: RequestInit): Promise<T> {
+	public async get<T = any>(endpoint: string, options?: RequestInit) {
 		return this.fetch<T>('GET', endpoint, options);
 	}
 
-	public async post<T>(endpoint: string, options?: RequestInit): Promise<T> {
+	public async post<T = any>(endpoint: string, options?: RequestInit) {
 		return this.fetch<T>('POST', endpoint, options);
 	}
 
-	public async delete<T>(endpoint: string, options?: RequestInit): Promise<T> {
+	public async delete<T = any>(endpoint: string, options?: RequestInit) {
 		return this.fetch<T>('DELETE', endpoint, options);
 	}
 
-	public async patch<T>(endpoint: string, options?: RequestInit): Promise<T> {
+	public async patch<T = any>(endpoint: string, options?: RequestInit) {
 		return this.fetch<T>('PATCH', endpoint, options);
 	}
 
-	public async put<T>(endpoint: string, options?: RequestInit): Promise<T> {
+	public async put<T = any>(endpoint: string, options?: RequestInit) {
 		return this.fetch<T>('PUT', endpoint, options);
 	}
 }

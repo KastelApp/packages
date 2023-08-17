@@ -10,7 +10,7 @@ class Snowflake {
 	public WorkerIdProcessId: bigint;
 
 	public constructor(config: SnowConfig) {
-		this.Epoch = BigInt(new Date(Number(config.Epoch || 1_641_016_800_000)).getTime());
+		this.Epoch = config.Epoch ?? 1_641_016_800_000n;
 
 		this.Increment = 0n;
 
@@ -22,32 +22,22 @@ class Snowflake {
 			(BigInt(config.ProcessId || 0) << (BigInt(config.SequenceBytes || 15) + BigInt(config.WorkerIdBytes || 6)));
 	}
 
-	public Generate(timestamp: Date | number = Date.now()): string {
-		if (typeof timestamp !== 'number' || Number.isNaN(timestamp)) {
-			throw new TypeError(
-				`'timestamp' expected to be number but got ${Number.isNaN(timestamp as number) ? 'NaN' : typeof timestamp}`,
-			);
-		}
+	public Generate(): string {
+		const timestamp = BigInt(Date.now()) - this.Epoch;
+		const snowflake = (timestamp << this.TimeShift) | this.WorkerIdProcessId | this.Increment;
+		this.Increment = (this.Increment + 1n) & ((1n << BigInt(this.TimeShift)) - 1n);
 
-		const TimeShift = BigInt(BigInt(timestamp) - this.Epoch) << this.TimeShift;
-
-		if (this.Increment >= 4_095n) this.Increment = 0n;
-
-		return (TimeShift | this.WorkerIdProcessId | this.Increment++).toString();
+		return snowflake.toString();
 	}
 
 	public MassGenerate(amount = 5): string[] {
-		if (typeof amount !== 'number' || Number.isNaN(amount)) {
-			throw new TypeError(`'amount' expected to be number but got ${Number.isNaN(amount) ? 'NaN' : typeof amount}`);
+		const snowflakes = [];
+
+		for (let index = 0; index < amount; index++) {
+			snowflakes.push(this.Generate());
 		}
 
-		const Ids = [];
-
-		for (let idCount = 0; idCount < Number(amount); idCount++) {
-			Ids.push(this.Generate());
-		}
-
-		return Ids;
+		return snowflakes;
 	}
 
 	public TimeStamp(snowflake: string): number {
@@ -55,17 +45,25 @@ class Snowflake {
 	}
 
 	public Validate(snowflake: string): boolean {
-		if (typeof snowflake !== 'string') {
-			throw new TypeError(`'snowflake' expected to be string but got ${typeof snowflake}`);
+		const bigintSnowflake = BigInt(snowflake);
+		const timestamp = (bigintSnowflake >> this.TimeShift) + this.Epoch;
+		const currentTimestamp = BigInt(Date.now());
+
+		if (snowflake.length <= 12) return false; // snowflakes are 17-19 digits long (Depending on the age)
+
+		// Check if the timestamp is within a valid range (adjust these values as needed)
+		const maxTimestamp = currentTimestamp + (1n << this.TimeShift) - 1n;
+		if (timestamp < this.Epoch || timestamp > maxTimestamp) {
+			return false;
 		}
 
-		const length = /^\d{17,21}$/.test(snowflake);
+		// Check if the timestamp is not in the future
+		if (timestamp > currentTimestamp) {
+			return false;
+		}
 
-		if (!length) return false;
-
-		const timestamp = this.TimeStamp(snowflake);
-
-		return timestamp >= Number(this.Epoch) && timestamp <= Date.now();
+		// Check if the snowflake is not within the first few increments
+		return (bigintSnowflake & ((1n << this.TimeShift) - 1n)) !== 0n;
 	}
 }
 

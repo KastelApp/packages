@@ -1,4 +1,7 @@
-import type { BasedGuild } from '../../../types/Client/Structures/Guilds/index.js';
+import { Endpoints } from '../../../Utils/R&E.js';
+import type { CreateChannelOptions } from '../../../types/Client/Options.js';
+import type { Channel } from '../../../types/Rest/Responses/Channel.js';
+import type { Guild } from '../../../types/Websocket/Payloads/Auth.js';
 import type { Client } from '../../Client.js';
 import BaseChannel from '../Channels/BaseChannel.js';
 
@@ -9,7 +12,7 @@ class BaseGuild {
 
 	public readonly permissions: BigInt;
 
-	public readonly description: string;
+	public readonly description: string | null;
 
 	public readonly flags: number;
 
@@ -21,7 +24,7 @@ class BaseGuild {
 
 	public readonly name: string;
 
-	public constructor(client: Client, RawGuild: BasedGuild) {
+	public constructor(client: Client, RawGuild: Guild) {
 		this.Client = client;
 
 		if (!this.Client) {
@@ -36,7 +39,7 @@ class BaseGuild {
 
 		this.flags = RawGuild.Flags;
 
-		this.owner = RawGuild.Owner.Id === this.Client.users.getCurrentUser()?.id;
+		this.owner = RawGuild.OwnerId === this.Client.users.getCurrentUser()?.id;
 
 		this.permissions = 0n; // RawGuild.Roles.reduce((a, b) => a | BigInt(b.Permissions), 0n);
 
@@ -55,6 +58,74 @@ class BaseGuild {
 
 	public get channels() {
 		return this.Client.channels.filter((channel) => channel.guildId === this.id);
+	}
+
+	public async createChannel({
+		name,
+		children,
+		description,
+		nsfw,
+		parentId,
+		permissionsOverrides,
+		position,
+		slowmode,
+		type,
+	}: CreateChannelOptions) {
+		if (parentId && !this.Client.channels.get(parentId)) {
+			return null;
+		}
+
+		if (children) {
+			for (const child of children) {
+				if (!this.Client.channels.get(child)) {
+					return null;
+				}
+			}
+		}
+
+		const Channel = await this.Client.Rest.post<Channel>(Endpoints.GuildChannels(this.id), {
+			body: {
+				Name: name,
+				Children: children,
+				Description: description,
+				Nsfw: nsfw,
+				ParentId: parentId,
+				PermissionsOverrides: permissionsOverrides,
+				Position: position,
+				Slowmode: slowmode,
+				Type: type,
+			},
+		});
+
+		if (Channel && Channel.statusCode === 201) {
+			const NewChannel = new BaseChannel(this.Client, Channel.json, this.id);
+
+			this.Client.channels.set(Channel.json.Id, NewChannel);
+
+			if (parentId) {
+				const ParentChannel = this.Client.channels.get(parentId);
+
+				if (ParentChannel) {
+					ParentChannel.children.push(Channel.json.Id);
+				}
+			}
+
+			if (children) {
+				for (const child of children) {
+					const ChildChannel = this.Client.channels.get(child);
+
+					if (ChildChannel) {
+						ChildChannel.parentId = Channel.json.Id;
+					}
+				}
+			}
+
+			return NewChannel;
+		} else if (Channel.statusCode !== 201) {
+			console.error(Channel);
+		}
+
+		return null;
 	}
 }
 

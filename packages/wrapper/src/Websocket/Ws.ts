@@ -3,11 +3,11 @@
 import { EventEmitter } from 'events';
 import pako from 'pako';
 import type Client from '../Client/Client.js';
-import { DefaultWebsocketSettings, ServerOpCodes, HardCloseCodes, SoftCloseCodes } from '../Utils/Constants.js';
+import { DefaultWebsocketSettings, HardCloseCodes, ServerOpCodes } from '../Utils/Constants.js';
 import StringFormatter from '../Utils/StringFormatter.js';
 import type { ConnectionType, Encoding, Status, WebsocketSettings } from '../types/Misc/ConfigTypes';
-import { type WorkerData } from '../types/Misc/Worker.d';
-import type { Auth } from '../types/Websocket/Payloads/Auth.js';
+import type { WorkerData } from '../types/Misc/index.js';
+import type { IdentifyPayload } from '../types/Websocket/Payloads/Auth.js';
 import Payloads from './Payloads.js';
 
 const OpCodes = {
@@ -15,28 +15,17 @@ const OpCodes = {
 	Hey: 1, // Client > Worker
 	Heartbeat: 2, // Worker > Client
 	Heartbeated: 3, // Client > Worker
+	StopAll: 4, // Client > Worker
 };
 
 const minPercentage = 0.7;
 const maxPercentage = 1;
 
 interface Websocket {
-	emit(event: 'closed' | 'open'): boolean;
-	emit(event: 'authed', data: Auth): boolean;
-	emit(
-		event: 'unauthed',
-		data: {
-			d: unknown;
-			op: (typeof ServerOpCodes)[keyof typeof ServerOpCodes];
-			s: number;
-		},
-	): boolean;
-	on(event: 'authed', listener: (data: Auth) => void): this;
-	on(event: 'closed' | 'open', listener: () => void): this;
-	on(
-		event: 'unauthed',
-		listener: (data: { d: unknown; op: (typeof ServerOpCodes)[keyof typeof ServerOpCodes]; s: number }) => void,
-	): this;
+	emit(event: 'closed' | 'open' | 'unAuthed'): boolean;
+	emit(event: 'authed', data: IdentifyPayload): boolean;
+	on(event: 'authed', listener: (data: IdentifyPayload) => void): this;
+	on(event: 'closed' | 'open' | 'unAuthed', listener: () => void): this;
 }
 
 class Websocket extends EventEmitter {
@@ -170,21 +159,8 @@ class Websocket extends EventEmitter {
 		this.Status = 'Connecting';
 
 		console.log(
-			this.Gateway,
-			this.Client,
-			this.Token,
-			this.Url,
-			this.Version,
-			this.Encoding,
-			this.Compression,
-			this.ConnectionType,
-			this.LastHeartbeatAck,
-			this.LastHeartbeatSent,
-			this.HeartbeatInterval,
-			this.Ready,
-			this.SessionId,
-			this.Sequence,
-			this.Status,
+			`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+			'Changing status to Connecting',
 		);
 
 		return this.Gateway;
@@ -217,11 +193,12 @@ class Websocket extends EventEmitter {
 
 		this.Gateway.onmessage = async (message) => {
 			const Payload = await this.handleWebsocketMessage(message);
+
 			const PayloadName: keyof typeof ServerOpCodes | undefined = Object.keys(ServerOpCodes).find(
-				(Op) => ServerOpCodes[Op as keyof typeof ServerOpCodes] === Payload?.op,
+				(Op) => ServerOpCodes[Op as keyof typeof ServerOpCodes] === Payload?.Op,
 			) as keyof typeof ServerOpCodes | undefined;
 
-			if (Payload?.s) this.Sequence = Payload.s;
+			if (Payload?.S) this.Sequence = Payload.S;
 
 			switch (PayloadName) {
 				case 'Hello': {
@@ -230,7 +207,7 @@ class Websocket extends EventEmitter {
 				}
 
 				case 'Authed': {
-					const Data = Payload?.d as Auth;
+					const Data = Payload?.D as IdentifyPayload;
 
 					this.FailedConnectionAttempts = 0;
 
@@ -355,21 +332,55 @@ class Websocket extends EventEmitter {
 					break;
 				}
 
+				case 'Error': {
+					const ErrorPayload = Payload?.D as {
+						Errors: {
+							[Key: string]: {
+								Code: number | string;
+								Message: string;
+							};
+						};
+					};
+
+					if (ErrorPayload.Errors?.Token) {
+						console.log(
+							`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+							'Invalid token, stopping',
+						);
+
+						this.Worker?.postMessage({
+							op: OpCodes.StopAll,
+							data: {},
+						});
+
+						this.Status = 'Failed';
+
+						console.log(
+							`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+							`Changing Status to Stopped`,
+						);
+
+						this.emit('unAuthed');
+
+						return;
+					}
+
+					console.log(
+						`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+						'We received an error',
+						ErrorPayload.Errors,
+					);
+
+					break;
+				}
+
 				default: {
 					console.log(
 						`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
 						'Unhandled payload:',
-						PayloadName ?? Payload?.op,
+						PayloadName ?? Payload?.Op,
 						Payload,
 					);
-
-					if (Payload?.op && Payload.op >= 4_000) {
-						console.log(
-							`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
-							'Unready event emitted',
-						);
-						this.emit('unauthed', Payload);
-					}
 				}
 			}
 		};
@@ -383,48 +394,98 @@ class Websocket extends EventEmitter {
 			// check if its a soft close or hard close. If its hard set to Reconnecting else set to ReconnectingResumeable (use the softCloseCodes object)
 			const { code } = event;
 
-			const IsSoft = Object.entries(SoftCloseCodes).find(([, value]) => value === code);
-			const IsHard = Object.entries(HardCloseCodes).find(([, value]) => value === code);
-
-			if (IsSoft) {
-				this.Status = 'ReconnectingResumeable';
+			if (
+				this.LastHeartbeatAck ||
+				this.LastHeartbeatSent ||
+				this.Ready ||
+				this.SessionId ||
+				this.Client ||
+				this.FailedConnectionAttempts ||
+				this.MaxConnectionAttempts
+			) {
+				// whar
 			}
 
-			if (IsHard) {
+			if (this.Status === 'Failed') {
+				console.log(
+					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+					'Gateway closed, not reconnecting',
+				);
+
+				return;
+			}
+
+			this.FailedConnectionAttempts++;
+
+			if (this.FailedConnectionAttempts >= this.MaxConnectionAttempts) {
+				console.log(
+					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+					`Failed to connect ${this.MaxConnectionAttempts} times, stopping`,
+				);
+
+				this.Worker?.postMessage({
+					op: OpCodes.StopAll,
+					data: {},
+				});
+
+				this.Status = 'Failed';
+
+				console.log(
+					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+					`Changing Status to Stopped`,
+				);
+
+				return;
+			}
+
+			if (code === 1_006 || Object.values(HardCloseCodes).includes(code)) {
+				console.log(
+					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+					`Gateway closed with an unresumeable code: ${code}, Telling worker to stop`,
+				);
+
+				this.Worker?.postMessage({
+					op: OpCodes.StopAll,
+					data: {},
+				});
+
 				this.Status = 'Reconnecting';
-			}
 
-			if (code === 1_006 || code >= 4_000) {
-				this.FailedConnectionAttempts++;
+				console.log(
+					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+					`Changing Status to Reconnecting`,
+				);
+
+				this.reconnect(false);
 			}
 
 			this.emit('closed');
-
-			if (this.FailedConnectionAttempts > this.MaxConnectionAttempts) {
-				console.warn(
-					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
-					'Max connection attempts reached',
-				);
-			} else {
-				console.log(
-					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
-					'Attempting to reconnect',
-				);
-				this.reconnect();
-			}
 		};
 	}
 
-	public reconnect() {
-		clearInterval(this.HeartBeating as NodeJS.Timeout);
+	public reconnect(Resumeable: boolean) {
+		if (this.HeartbeatInterval) {
+			clearInterval(this.HeartBeating as NodeJS.Timeout);
+		}
 
-		this.connect(); // for now
+		if (Resumeable) {
+			console.log(
+				`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+				'Reconnecting Resumeable',
+			);
+
+			// for now nothing
+		} else {
+			console.log(`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`, 'Reconnecting');
+
+			this.connect();
+		}
 	}
 
 	private async handleWebsocketMessage(message: MessageEvent): Promise<{
-		d: unknown;
-		op: (typeof ServerOpCodes)[keyof typeof ServerOpCodes];
-		s: number;
+		D: unknown;
+		Op: (typeof ServerOpCodes)[keyof typeof ServerOpCodes];
+		S: number;
 	} | null> {
 		if (typeof message.data === 'string') {
 			try {

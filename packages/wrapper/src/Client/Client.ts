@@ -6,7 +6,6 @@ import { DefaultWebsocketSettings } from '../Utils/Constants.js';
 import StringFormatter from '../Utils/StringFormatter.js';
 import Websocket from '../Websocket/Ws.js';
 import type { ClientOptions } from '../types/Client';
-import type { BasedGuild } from '../types/Client/Structures/Guilds/index.js';
 import { ChannelStore, GuildStore, RoleStore, UserStore } from './Stores/index.js';
 import BaseGuild from './Structures/Guilds/BaseGuild.js';
 import BaseUser from './Structures/Users/BaseUser.js';
@@ -109,15 +108,21 @@ class Client extends EventEmitter {
 					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.orange('[Client')} Adding guild ${guild.Name} (${
 						guild.Id
 					})`,
+					guild,
 				);
-				this.guilds.set(guild.Id, new BaseGuild(this, guild as unknown as BasedGuild));
+
+				this.guilds.set(guild.Id, new BaseGuild(this, guild));
 			}
 
 			this.emit('ready');
 		});
 
-		this.Websocket.on('unauthed', () => {
+		this.Websocket.on('unAuthed', () => {
 			this.emit('unAuthed');
+		});
+
+		this.Websocket.on('closed', () => {
+			this.emit('unReady');
 		});
 	}
 

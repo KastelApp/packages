@@ -1,6 +1,6 @@
 {
 	"name": "@kastelll/wrapper",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"description": "This is a API & WS Wrapper for Kastel, Handles almost everything",
 	"license": "GPL-3.0-or-later",
 	"keywords": [],
@@ -52,6 +52,7 @@
 		"eslint-formatter-pretty": "^4.1.0",
 		"prettier": "^2.8.2",
 		"tsup": "^6.5.0",
+		"typedoc": "^0.24.8",
 		"typescript": "^4.9.4",
 		"vitest": "^0.27.1"
 	},

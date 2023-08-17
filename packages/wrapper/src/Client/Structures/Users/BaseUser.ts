@@ -1,10 +1,10 @@
-import type { BasedUser } from '../../../types/Client/Structures/Users/index';
+import type { UserObject } from '../../../types/Websocket/Payloads/Auth.js';
 import type { Client } from '../../Client.js';
 
 class BaseUser {
 	private readonly Client: Client;
 
-	private _RawUser: BasedUser;
+	private _RawUser: UserObject;
 
 	public readonly username: string;
 
@@ -22,7 +22,7 @@ class BaseUser {
 
 	public readonly flags: number;
 
-	public readonly twoFa: boolean;
+	public readonly twoFaEnabled: boolean;
 
 	public readonly twoFaVerified: boolean;
 
@@ -30,7 +30,7 @@ class BaseUser {
 
 	private readonly _client: boolean = false;
 
-	public constructor(Client: Client, RawUser: BasedUser, isClient?: boolean) {
+	public constructor(Client: Client, RawUser: UserObject, isClient?: boolean) {
 		this.Client = Client;
 
 		if (!this.Client) {
@@ -43,7 +43,7 @@ class BaseUser {
 
 		this.discriminator = this._RawUser.Tag;
 
-		this.avatar = this._RawUser.AvatarHash ?? null;
+		this.avatar = this._RawUser.Avatar ?? null;
 
 		this.id = this._RawUser.Id;
 
@@ -55,7 +55,7 @@ class BaseUser {
 
 		this.flags = this._RawUser.PublicFlags;
 
-		this.twoFa = this._RawUser.TwoFa;
+		this.twoFaEnabled = this._RawUser.TwoFaEnabled;
 
 		this.twoFaVerified = this._RawUser.TwoFaVerified;
 
@@ -64,7 +64,7 @@ class BaseUser {
 		this._client = isClient ?? false;
 	}
 
-	public set RawUser(RawUser: BasedUser) {
+	public set RawUser(RawUser: UserObject) {
 		this._RawUser = RawUser;
 	}
 

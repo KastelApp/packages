@@ -1,6 +1,6 @@
 import { ChannelTypes } from '../../../Utils/Constants.js';
 import { Endpoints } from '../../../Utils/R&E.js';
-import type { Channel } from '../../../types/Client/Structures/channel.js';
+import type { Channel } from '../../../types/Websocket/Payloads/Auth.js';
 import type { Client } from '../../Client.js';
 
 class BaseChannel {
@@ -16,9 +16,11 @@ class BaseChannel {
 
 	public readonly position: number;
 
-	public readonly parentId: string | undefined;
+	public parentId: string | undefined;
 
 	public readonly description: string | undefined;
+
+	public children: string[] = [];
 
 	private readonly _raw: Channel;
 
@@ -41,9 +43,11 @@ class BaseChannel {
 
 		this.position = RawChannel.Position;
 
-		this.parentId = RawChannel.Parent;
+		this.parentId = RawChannel.ParentId;
 
 		this.description = RawChannel.Description;
+
+		this.children = RawChannel.Children;
 
 		this._raw = RawChannel;
 	}

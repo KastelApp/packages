@@ -1,5 +1,5 @@
 /* eslint-disable id-length */
-import { ClientOpCodes } from '../Utils/Constants.js';
+import { ServerOpCodes } from '../Utils/Constants.js';
 import type Websocket from './Ws';
 
 class Payloads {
@@ -18,17 +18,17 @@ class Payloads {
 	}
 
 	public Identify(): {
-		d: {
+		D: {
 			Settings: {
 				Compress: boolean | undefined;
 			};
 			Token: string | null | undefined;
 		};
-		op: number;
+		Op: number;
 	} {
 		const Data = {
-			op: ClientOpCodes.Auth,
-			d: {
+			Op: ServerOpCodes.Auth,
+			D: {
 				Token: this.Gateway?.Token,
 				Settings: {
 					Compress: this.Gateway?.Compression,
@@ -44,14 +44,14 @@ class Payloads {
 	}
 
 	public Heartbeat(): {
-		d: {
+		D: {
 			Sequence: number;
 		};
-		op: number;
+		Op: number;
 	} {
 		const Data = {
-			op: ClientOpCodes.Heartbeat,
-			d: {
+			Op: ServerOpCodes.HeartBeat,
+			D: {
 				Sequence: this.Gateway?.Sequence ?? 0,
 			},
 		};

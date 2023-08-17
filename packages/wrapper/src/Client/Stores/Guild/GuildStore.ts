@@ -38,7 +38,7 @@ class GuildStore {
 		return this.guilds.get(this._currentGuild ?? '');
 	}
 
-	public get toArray(): BaseGuild[] {
+	public toArray(): BaseGuild[] {
 		return this.guilds.array();
 	}
 
