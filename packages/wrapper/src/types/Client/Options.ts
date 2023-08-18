@@ -16,3 +16,17 @@ export interface CreateChannelOptions {
 	slowmode?: number;
 	type: number;
 }
+
+export interface RegisterAccountOptions {
+	email: string;
+	inviteCode?: string;
+	password: string;
+	resetClient?: boolean;
+	username: string; // with this as true it will reset the client and automatically add the token etc etc
+}
+
+export interface LoginOptions {
+	email: string;
+	password: string;
+	resetClient?: boolean;
+}

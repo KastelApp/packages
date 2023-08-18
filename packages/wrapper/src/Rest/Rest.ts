@@ -74,7 +74,9 @@ class Rest {
 
 			Headers['User-Agent'] = options?.userAgent ?? this.DefaultUserAgent;
 
-			void fetch(`${this.Api}${endpoint}`, {
+			const url = options?.noApi ? this.ApiUrlWithNoVersion : this.Api;
+
+			void fetch(`${url}${endpoint}`, {
 				method,
 				headers: Headers,
 				...(options?.body
@@ -108,6 +110,10 @@ class Rest {
 					}
 				});
 		});
+	}
+
+	private get ApiUrlWithNoVersion() {
+		return this.Api.replace(`/${this.Version}`, '');
 	}
 
 	public async get<T = any>(endpoint: string, options?: RequestInit) {

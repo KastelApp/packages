@@ -1,3 +1,5 @@
+import { Endpoints } from '../../../Utils/R&E.js';
+import type { CreateGuild, GuildResponse } from '../../../types/Client/Guild';
 import type Client from '../../Client';
 import BaseGuild from '../../Structures/Guilds/BaseGuild.js';
 import BaseStore from '../BaseStore.js';
@@ -50,6 +52,38 @@ class GuildStore {
 		} else {
 			this._currentGuild = null;
 		}
+	}
+
+	public async createGuild({ description, name }: { description: string; name: string }): Promise<CreateGuild> {
+		const { statusCode, json } = await this.client.Rest.post<GuildResponse>(Endpoints.Guild(), {
+			body: {
+				Name: name,
+				Description: description,
+			},
+		});
+
+		if (statusCode !== 201) {
+			const NameError = json.Errors?.Name;
+			const MaxGuildError = json.Errors?.Guilds;
+
+			return {
+				success: false,
+				errors: {
+					description: false,
+					name: NameError?.Code === 'MissingName',
+					maxGuilds: MaxGuildError?.Code === 'MaxGuildsReached',
+				},
+			};
+		}
+
+		const Guild = new BaseGuild(this.client, json);
+
+		this.guilds.set(Guild.id, Guild);
+
+		return {
+			success: true,
+			guild: Guild,
+		};
 	}
 }
 

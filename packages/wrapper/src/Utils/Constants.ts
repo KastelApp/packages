@@ -61,6 +61,7 @@ export const Flags = {
 	MajorBugHunterBadge: 1n << 10n,
 	Ghost: 1n << 25n,
 	System: 1n << 26n,
+	Staff: 1n << 27n,
 };
 
 export const MixedPermissions = {
@@ -171,15 +172,7 @@ export const SoftCloseCodes = {
 	MissedHeartbeat: 1_001, // Missed heartbeat
 };
 
-// export const AuthlessRoutes = [
-// 	'/',
-// 	'/login',
-// 	'/register',
-// 	'/logout',
-// 	'/verify',
-// 	'/404',
-// 	'/branding'
-// ];
+export const PasswordRequiredFields = ['email', 'phoneNumber', 'newPassword', 'aFlags', 'rFlags'] as const;
 
 export const AuthlessRoutes: AuthlessRoute[] = [
 	{

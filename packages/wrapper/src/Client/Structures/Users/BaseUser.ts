@@ -1,5 +1,8 @@
+import { Endpoints } from '../../../Utils/R&E.js';
+import type { EditableUser } from '../../../types/Client/User.js';
 import type { UserObject } from '../../../types/Websocket/Payloads/Auth.js';
 import type { Client } from '../../Client.js';
+import Flags from '../Flags.js';
 
 class BaseUser {
 	private readonly Client: Client;
@@ -20,7 +23,7 @@ class BaseUser {
 
 	public readonly phone: string | null;
 
-	public readonly flags: number;
+	public readonly flags: Flags;
 
 	public readonly twoFaEnabled: boolean;
 
@@ -55,7 +58,7 @@ class BaseUser {
 
 		this.phone = this._RawUser.PhoneNumber ?? null;
 
-		this.flags = this._RawUser.PublicFlags;
+		this.flags = new Flags(this._RawUser.PublicFlags);
 
 		this.twoFaEnabled = this._RawUser.TwoFaEnabled ?? false;
 
@@ -76,6 +79,50 @@ class BaseUser {
 		if (bio) {
 			// wad
 		}
+	}
+
+	public async updateUser({
+		aFlags,
+		avatar,
+		bio,
+		email,
+		globalNickname,
+		newPassword,
+		password,
+		phoneNumber,
+		rFlags,
+		tag,
+		username,
+	}: EditableUser) {
+		const { statusCode, json } = await this.Client.Rest.patch<UserObject>(Endpoints.User(), {
+			body: {
+				Avatar: avatar,
+				Bio: bio,
+				Email: email,
+				GlobalNickname: globalNickname,
+				NewPassword: newPassword,
+				Password: password,
+				PhoneNumber: phoneNumber,
+				Tag: tag,
+				Username: username,
+				...(this.flags.has('Staff')
+					? {
+							AFlags: aFlags,
+							RFlags: rFlags,
+					  }
+					: {}),
+			},
+		});
+
+		if (statusCode !== 200) {
+			return this;
+		}
+
+		const NewBaseUser = new BaseUser(this.Client, json, this.isClient());
+
+		this.Client.users.set(json.Id, NewBaseUser);
+
+		return NewBaseUser;
 	}
 
 	public isClient(): boolean {
