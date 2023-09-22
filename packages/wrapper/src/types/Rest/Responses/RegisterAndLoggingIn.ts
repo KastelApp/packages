@@ -5,7 +5,7 @@ export interface RegisterResponse extends ResponseBody {
 	User: User;
 }
 
-interface User {
+export interface User {
 	Avatar: any;
 	Email: string;
 	Id: string;

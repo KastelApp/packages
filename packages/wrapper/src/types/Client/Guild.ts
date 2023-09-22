@@ -4,12 +4,12 @@ import type { Guild } from '../Websocket/Payloads/Auth';
 
 export type GuildResponse = Guild & ResponseBody;
 
-interface CreateGuildSuccess {
+export interface CreateGuildSuccess {
 	guild: BaseGuild;
 	success: true;
 }
 
-interface CreateGuildError {
+export interface CreateGuildError {
 	errors: {
 		description: boolean;
 		maxGuilds?: boolean;

@@ -1,7 +1,7 @@
 import type { Rest } from '../../Rest';
 import type Websocket from '../../Websocket/Ws';
 
-interface ClientOptionsUnauthed {
+export interface ClientOptionsUnauthed {
 	Rest?: Rest;
 	Websocket?: Websocket;
 	apiUrl: string;
@@ -12,7 +12,7 @@ interface ClientOptionsUnauthed {
 	wsUrl: string;
 }
 
-interface ClientOptionsAuthed {
+export interface ClientOptionsAuthed {
 	Rest?: Rest;
 	Websocket?: Websocket;
 	apiUrl: string;
@@ -25,7 +25,7 @@ interface ClientOptionsAuthed {
 
 export type ClientOptions = ClientOptionsAuthed | ClientOptionsUnauthed;
 
-interface RegisterAndLoginSuccess {
+export interface RegisterAndLoginSuccess {
 	success: true;
 	token: string;
 	userData?: {
@@ -38,7 +38,7 @@ interface RegisterAndLoginSuccess {
 	};
 }
 
-interface RegisterAndLoginError {
+export interface RegisterAndLoginError {
 	errors: {
 		email: boolean;
 		maxUsernames?: boolean;

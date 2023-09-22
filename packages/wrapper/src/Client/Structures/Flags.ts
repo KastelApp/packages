@@ -41,3 +41,5 @@ class Flags {
 }
 
 export default Flags;
+
+export { Flags };
