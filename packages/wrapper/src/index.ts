@@ -23,9 +23,10 @@ export {
 	RolePermissions,
 	ServerOpCodes,
 	SoftCloseCodes,
+	MessageStates,
 } from './Utils/Constants.js';
 export * from './Utils/R&E.js';
-export { ChannelStore, GuildStore, RoleStore, UserStore } from './Client/Stores/index.js';
+export { ChannelStore, GuildStore, RoleStore, UserStore, BaseStore } from './Client/Stores/index.js';
 export { BaseChannel } from './Client/Structures/Channels/BaseChannel.js';
 export { BaseGuild } from './Client/Structures/Guilds/BaseGuild.js';
 export { GuildMember } from './Client/Structures/Guilds/GuildMember.js';

@@ -211,3 +211,10 @@ export const AuthlessRoutes: AuthlessRoute[] = [
 		type: 'Auth',
 	},
 ];
+
+export const MessageStates = {
+	Sent: 1 << 0,
+	Deleted: 1 << 1, // will be removed from cache shortly
+	Edited: 1 << 2,
+	Failed: 1 << 3, // when a message fails to send
+};

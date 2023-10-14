@@ -1,9 +1,12 @@
+import { ChannelTypes } from '../../../Utils/Constants.js';
 import { Endpoints } from '../../../Utils/R&E.js';
 import type { CreateChannelOptions } from '../../../types/Client/Options.js';
 import type { Channel } from '../../../types/Rest/Responses/Channel.js';
 import type { Guild } from '../../../types/Websocket/Payloads/Auth.js';
 import type { Client } from '../../Client.js';
 import BaseChannel from '../Channels/BaseChannel.js';
+import CategoryChannel from '../Channels/CategoryChannel.js';
+import TextChannel from '../Channels/TextChannel.js';
 import BaseUser from '../Users/BaseUser.js';
 import GuildMember from './GuildMember.js';
 import Role from './Role.js';
@@ -54,7 +57,19 @@ class BaseGuild {
 			if (this.Client.channels.get(channel.Id)) {
 				continue;
 			} else {
-				this.Client.channels.set(channel.Id, new BaseChannel(this.Client, channel, this.id));
+				switch (channel.Type) {
+					case ChannelTypes.GuildCategory: {
+						this.Client.channels.set(channel.Id, new CategoryChannel(this.Client, channel, this.id));
+
+						break;
+					}
+
+					case ChannelTypes.GuildText: {
+						this.Client.channels.set(channel.Id, new TextChannel(this.Client, channel, this.id));
+
+						break;
+					}
+				}
 			}
 		}
 
@@ -66,7 +81,7 @@ class BaseGuild {
 			}
 		}
 
-		for (const guildMember of RawGuild.Members) {
+		for (const guildMember of RawGuild.Members ?? []) {
 			if (this.Client.guildMembers.get(guildMember.User.Id)) {
 				continue;
 			} else {

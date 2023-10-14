@@ -1,3 +1,4 @@
+import { type Writable, writable } from 'svelte/store';
 import type Client from '../Client';
 import type BaseUser from '../Structures/Users/BaseUser.js';
 import BaseStore from './BaseStore.js';
@@ -6,18 +7,24 @@ import BaseStore from './BaseStore.js';
  * A store for users.
  */
 class UserStore {
-	public users: BaseStore<string, BaseUser>;
+	public userStore: Writable<BaseStore<string, BaseUser>>;
 
 	private readonly client: Client;
 
+	public users: BaseStore<string, BaseUser> = new BaseStore();
+
 	public constructor(client: Client) {
-		this.users = new BaseStore<string, BaseUser>();
+		this.userStore = writable(new BaseStore<string, BaseUser>());
 
 		this.client = client;
 
 		if (this.client) {
 			//
 		}
+
+		this.userStore.subscribe((value) => {
+			this.users = value;
+		});
 	}
 
 	public get(id: string): BaseUser | undefined {
@@ -26,6 +33,7 @@ class UserStore {
 
 	public set(id: string, value: BaseUser): this {
 		this.users.set(id, value);
+		this.userStore.set(this.users);
 
 		return this;
 	}

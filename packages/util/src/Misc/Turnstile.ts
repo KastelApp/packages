@@ -56,9 +56,7 @@ class Turnstile {
 			},
 		});
 
-		const Result: TurnstileValidationResponse = await body.json();
-
-		return Result;
+		return (await body.json()) as TurnstileValidationResponse;
 	}
 }
 

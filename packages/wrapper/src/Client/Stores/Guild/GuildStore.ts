@@ -1,3 +1,4 @@
+import { type Writable, writable } from 'svelte/store';
 import { Endpoints } from '../../../Utils/R&E.js';
 import type { CreateGuild, GuildResponse } from '../../../types/Client/Guild';
 import type Client from '../../Client';
@@ -8,20 +9,26 @@ import BaseStore from '../BaseStore.js';
  * A store for guilds.
  */
 class GuildStore {
-	public guilds: BaseStore<string, BaseGuild>;
+	public guildStore: Writable<BaseStore<string, BaseGuild>>;
 
 	private readonly client: Client;
 
 	public _currentGuild: string | null;
 
+	public guilds: BaseStore<string, BaseGuild> = new BaseStore();
+
 	public constructor(client: Client) {
-		this.guilds = new BaseStore<string, BaseGuild>();
+		this.guildStore = writable(new BaseStore<string, BaseGuild>());
 
 		this.client = client;
 
 		if (this.client) {
 			//
 		}
+
+		this.guildStore.subscribe((value) => {
+			this.guilds = value;
+		});
 
 		this._currentGuild = null;
 	}
@@ -32,6 +39,7 @@ class GuildStore {
 
 	public set(id: string, value: BaseGuild): this {
 		this.guilds.set(id, value);
+		this.guildStore.set(this.guilds);
 
 		return this;
 	}

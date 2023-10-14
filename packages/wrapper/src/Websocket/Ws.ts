@@ -3,11 +3,14 @@
 import { EventEmitter } from 'events';
 import pako from 'pako';
 import type Client from '../Client/Client.js';
+import BaseChannel from '../Client/Structures/Channels/BaseChannel.js';
+import BaseGuild from '../Client/Structures/Guilds/BaseGuild.js';
 import { DefaultWebsocketSettings, HardCloseCodes, ServerOpCodes } from '../Utils/Constants.js';
 import StringFormatter from '../Utils/StringFormatter.js';
 import type { ConnectionType, Encoding, Status, WebsocketSettings } from '../types/Misc/ConfigTypes';
 import type { WorkerData } from '../types/Misc/index.js';
-import type { IdentifyPayload } from '../types/Websocket/Payloads/Auth.js';
+import type { Guild, IdentifyPayload } from '../types/Websocket/Payloads/Auth.js';
+import type { ChannelPayload } from '../types/Websocket/Payloads/Channel.js';
 import Payloads from './Payloads.js';
 
 const OpCodes = {
@@ -370,6 +373,28 @@ class Websocket extends EventEmitter {
 						'We received an error',
 						ErrorPayload.Errors,
 					);
+
+					break;
+				}
+
+				case 'GuildNew': {
+					const Data = Payload?.D as Guild;
+
+					if (!this.Client?.guilds.get(Data.Id)) this.Client?.guilds.set(Data.Id, new BaseGuild(this.Client, Data));
+
+					break;
+				}
+
+				case 'ChannelUpdate':
+				case 'ChannelNew': {
+					// This is lazy and may cause issues buttttt who cares amirite
+					const Data = Payload?.D as ChannelPayload;
+
+					const GuildId = Data.GuildId;
+
+					delete Data.GuildId;
+
+					this.Client?.channels.set(Data.Id, new BaseChannel(this.Client, Data, GuildId));
 
 					break;
 				}

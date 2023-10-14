@@ -1,3 +1,4 @@
+import { type Writable, writable } from 'svelte/store';
 import type Client from '../Client';
 import BaseChannel from '../Structures/Channels/BaseChannel.js';
 import BaseStore from './BaseStore.js';
@@ -6,14 +7,16 @@ import BaseStore from './BaseStore.js';
  * A store for Channels.
  */
 class ChannelStore {
-	public channels: BaseStore<string, BaseChannel>;
+	public channelStore: Writable<BaseStore<string, BaseChannel>>;
 
 	private readonly client: Client;
 
 	private _currentChannel: string | null;
 
+	public channels: BaseStore<string, BaseChannel> = new BaseStore();
+
 	public constructor(client: Client) {
-		this.channels = new BaseStore<string, BaseChannel>();
+		this.channelStore = writable(new BaseStore<string, BaseChannel>());
 
 		this.client = client;
 
@@ -22,6 +25,10 @@ class ChannelStore {
 		}
 
 		this._currentChannel = null;
+
+		this.channelStore.subscribe((value) => {
+			this.channels = value;
+		});
 	}
 
 	public get(id: string): BaseChannel | undefined {
@@ -30,6 +37,7 @@ class ChannelStore {
 
 	public set(id: string, value: BaseChannel): this {
 		this.channels.set(id, value);
+		this.channelStore.set(this.channels);
 
 		return this;
 	}

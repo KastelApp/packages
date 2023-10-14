@@ -43,6 +43,12 @@ export interface RegisterAndLoginError {
 		email: boolean;
 		maxUsernames?: boolean;
 		password: boolean;
+		unknown?: {
+			[k: string]: {
+				Code: string;
+				Message: string;
+			};
+		};
 		username?: boolean;
 	};
 	success: false;

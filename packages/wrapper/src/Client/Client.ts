@@ -9,7 +9,9 @@ import Websocket from '../Websocket/Ws.js';
 import type { ClientOptions, RegisterAndLogin } from '../types/Client';
 import type { LoginOptions, RegisterAccountOptions } from '../types/Client/Options.js';
 import type { RegisterResponse } from '../types/Rest/Responses/RegisterAndLoggingIn.js';
+import BanStore from './Stores/Guild/BanStore.js';
 import GuildMemberStore from './Stores/Guild/GuildMemberStore.js';
+import InviteStore from './Stores/Guild/InviteStore.js';
 import { ChannelStore, GuildStore, RoleStore, UserStore } from './Stores/index.js';
 import BaseGuild from './Structures/Guilds/BaseGuild.js';
 import BaseUser from './Structures/Users/BaseUser.js';
@@ -51,6 +53,10 @@ class Client extends EventEmitter {
 	public EmailRegex: RegExp;
 
 	public UsernameRegex: RegExp;
+
+	public invites: InviteStore;
+
+	public bans: BanStore;
 
 	public constructor(options: ClientOptions) {
 		super();
@@ -96,6 +102,10 @@ class Client extends EventEmitter {
 		this.users = new UserStore(this);
 
 		this.guildMembers = new GuildMemberStore(this);
+
+		this.invites = new InviteStore(this);
+
+		this.bans = new BanStore(this);
 
 		this.PasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d!@#$%^&*()-=_+{};:<>,.?/~]{6,72}$/; // eslint-disable-line unicorn/better-regex
 
@@ -197,6 +207,9 @@ class Client extends EventEmitter {
 					password: PasswordError?.Code === 'InvalidPassword',
 					username: UsernameError?.Code === 'InvalidUsername',
 					maxUsernames: UsernameError?.Code === 'MaxUsernames',
+					unknown: Object.fromEntries(
+						Object.entries(json.Errors ?? {}).filter(([key]) => !['Email', 'Password', 'Username'].includes(key)),
+					),
 				},
 			};
 		}
@@ -250,6 +263,9 @@ class Client extends EventEmitter {
 				errors: {
 					email: EmailError?.Code === 'InvalidEmail',
 					password: PasswordError?.Code === 'InvalidPassword',
+					unknown: Object.fromEntries(
+						Object.entries(json.Errors ?? {}).filter(([key]) => !['Email', 'Password'].includes(key)),
+					),
 				},
 			};
 		}

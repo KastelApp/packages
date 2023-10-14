@@ -1,3 +1,4 @@
+import { type Writable, writable } from 'svelte/store';
 import type Client from '../../Client';
 import type GuildMember from '../../Structures/Guilds/GuildMember';
 import BaseStore from '../BaseStore.js';
@@ -6,18 +7,24 @@ import BaseStore from '../BaseStore.js';
  * A store for guild members
  */
 class GuildMemberStore {
-	public members: BaseStore<string, GuildMember>;
+	public membersStore: Writable<BaseStore<string, GuildMember>>;
 
 	private readonly client: Client;
 
+	public members: BaseStore<string, GuildMember> = new BaseStore();
+
 	public constructor(client: Client) {
-		this.members = new BaseStore<string, GuildMember>();
+		this.membersStore = writable(new BaseStore<string, GuildMember>());
 
 		this.client = client;
 
 		if (this.client) {
 			//
 		}
+
+		this.membersStore.subscribe((value) => {
+			this.members = value;
+		});
 	}
 
 	public get(id: string): GuildMember | undefined {
@@ -26,6 +33,7 @@ class GuildMemberStore {
 
 	public set(id: string, value: GuildMember): this {
 		this.members.set(id, value);
+		this.membersStore.set(this.members);
 
 		return this;
 	}

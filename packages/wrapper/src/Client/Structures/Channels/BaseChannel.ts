@@ -5,7 +5,7 @@ import type { Client } from '../../Client.js';
 import Permissions from '../Permissions.js';
 
 class BaseChannel {
-	private readonly Client: Client;
+	public readonly Client: Client;
 
 	public readonly type: keyof typeof ChannelTypes;
 
@@ -90,24 +90,8 @@ class BaseChannel {
 		return true;
 	}
 
-	public setDescription(description: string) {
-		if (description) {
-			//
-		}
-
-		return this;
-	}
-
 	public setPosition(position: number) {
 		if (position) {
-			//
-		}
-
-		return this;
-	}
-
-	public setParent(parentId: string) {
-		if (parentId) {
 			//
 		}
 
@@ -134,6 +118,29 @@ class BaseChannel {
 			parentId: this.parentId,
 			description: this.description,
 		};
+	}
+
+	public isTextBased() {
+		return (
+			this.type === 'GuildText' ||
+			this.type === 'Dm' ||
+			this.type === 'GroupChat' ||
+			this.type === 'GuildRules' ||
+			this.type === 'GuildNews' ||
+			this.type === 'GuildNewMember'
+		);
+	}
+
+	public isChattable() {
+		// soon check roles & permission overrides
+		return (
+			this.type === 'GuildText' ||
+			this.type === 'Dm' ||
+			this.type === 'GroupChat' ||
+			this.type === 'GuildNewMember' ||
+			this.type === 'GuildRules' ||
+			this.type === 'GuildNews'
+		);
 	}
 }
 

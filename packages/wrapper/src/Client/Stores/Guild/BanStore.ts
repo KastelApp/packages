@@ -1,10 +1,33 @@
+import { type Writable, writable } from 'svelte/store';
+import type Client from '../../Client';
+import type Ban from '../../Structures/Guilds/Ban';
 import BaseStore from '../BaseStore.js';
 
 /**
- * A store for roles.
+ * A store for guilds.
  */
-class RoleStore<K, V> extends BaseStore<K, V> {}
+class BanStore {
+	public banStore: Writable<BaseStore<string, Ban>>;
 
-export { RoleStore };
+	private readonly client: Client;
 
-export default RoleStore;
+	public bans: BaseStore<string, Ban> = new BaseStore();
+
+	public constructor(client: Client) {
+		this.banStore = writable(new BaseStore<string, Ban>());
+
+		this.client = client;
+
+		if (this.client) {
+			//
+		}
+
+		this.banStore.subscribe((value) => {
+			this.bans = value;
+		});
+	}
+}
+
+export { BanStore };
+
+export default BanStore;
