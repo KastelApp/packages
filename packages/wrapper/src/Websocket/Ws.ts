@@ -1,11 +1,14 @@
+/* eslint-disable sonarjs/no-nested-switch */
 /* eslint-disable no-restricted-globals */
 /* eslint-disable unicorn/prefer-node-protocol */
 import { EventEmitter } from 'events';
 import pako from 'pako';
 import type Client from '../Client/Client.js';
 import BaseChannel from '../Client/Structures/Channels/BaseChannel.js';
+import CategoryChannel from '../Client/Structures/Channels/CategoryChannel.js';
+import TextChannel from '../Client/Structures/Channels/TextChannel.js';
 import BaseGuild from '../Client/Structures/Guilds/BaseGuild.js';
-import { DefaultWebsocketSettings, HardCloseCodes, ServerOpCodes } from '../Utils/Constants.js';
+import { ChannelTypes, DefaultWebsocketSettings, HardCloseCodes, ServerOpCodes } from '../Utils/Constants.js';
 import StringFormatter from '../Utils/StringFormatter.js';
 import type { ConnectionType, Encoding, Status, WebsocketSettings } from '../types/Misc/ConfigTypes';
 import type { WorkerData } from '../types/Misc/index.js';
@@ -394,7 +397,31 @@ class Websocket extends EventEmitter {
 
 					delete Data.GuildId;
 
-					this.Client?.channels.set(Data.Id, new BaseChannel(this.Client, Data, GuildId));
+					switch (Data.Type) {
+						case ChannelTypes.GuildCategory: {
+							this.Client?.channels.set(Data.Id, new CategoryChannel(this.Client, Data, GuildId));
+
+							break;
+						}
+
+						case ChannelTypes.GuildText: {
+							this.Client?.channels.set(Data.Id, new TextChannel(this.Client, Data, GuildId));
+
+							break;
+						}
+
+						default: {
+							console.warn(
+								`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+								'Unhandled channel type',
+								Data.Type,
+							);
+
+							this.Client?.channels.set(Data.Id, new BaseChannel(this.Client, Data, GuildId));
+
+							break;
+						}
+					}
 
 					break;
 				}
