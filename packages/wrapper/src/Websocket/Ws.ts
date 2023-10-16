@@ -125,7 +125,7 @@ class Websocket extends EventEmitter {
 		this.MiniSessionId = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
 	}
 
-	public setToken(token: string) {
+	public setToken(token: string | null) {
 		this.Token = token;
 
 		return this;
@@ -173,7 +173,9 @@ class Websocket extends EventEmitter {
 	}
 
 	public disconnect() {
-		console.log(this.HeartBeating);
+		this.Status = 'DisconnectedOnPurpose';
+
+		this.Gateway?.close();
 	}
 
 	public setClient(client: Client) {
@@ -442,6 +444,20 @@ class Websocket extends EventEmitter {
 				`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
 				'Gateway closed, Reconnecting',
 			);
+
+			if (this.Status === 'DisconnectedOnPurpose') {
+				console.log(
+					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+					'Gateway closed, not reconnecting',
+				);
+
+				this.Worker?.postMessage({
+					op: OpCodes.StopAll,
+					data: {},
+				});
+
+				return;
+			}
 
 			// check if its a soft close or hard close. If its hard set to Reconnecting else set to ReconnectingResumeable (use the softCloseCodes object)
 			const { code } = event;

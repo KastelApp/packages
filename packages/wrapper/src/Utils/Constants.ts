@@ -212,9 +212,64 @@ export const AuthlessRoutes: AuthlessRoute[] = [
 	},
 ];
 
-export const MessageStates = {
-	Sent: 1 << 0,
-	Deleted: 1 << 1, // will be removed from cache shortly
-	Edited: 1 << 2,
-	Failed: 1 << 3, // when a message fails to send
-};
+export enum MessageStates {
+	Sent = 1,
+	Deleted = 2, // will be removed from cache shortly
+	Edited = 3,
+	Failed = 4, // when a message fails to send
+}
+
+// How we handle caching, types: low, medium, high, very high, unlimited (unlimited will keep everything cached)
+export const DataCachingConfigurations = [
+	{
+		type: 'low',
+		per: {
+			guildMembers: 200,
+			messages: 50, // PER channel (so if you have 10 channels, it will cache 500 messages)
+			bans: 50,
+		},
+		users: 1_000, // can have a max of 1000 users cached
+		invites: 100, // can have a max of 100 invites cached
+	},
+	{
+		// no comments on this besides messages one
+		type: 'medium',
+		per: {
+			guildMembers: 1_000,
+			messages: 150, // PER channel (so if you have 10 channels, it will cache 1500 messages)
+			bans: 100,
+		},
+		users: 2_000,
+		invites: 300,
+	},
+	{
+		type: 'high',
+		per: {
+			guildMembers: 5_000,
+			messages: 250, // PER channel (so if you have 10 channels, it will cache 2500 messages)
+			bans: 500,
+		},
+		users: 5_000,
+		invites: 300,
+	},
+	{
+		type: 'very high',
+		per: {
+			guildMembers: 10_000,
+			messages: 250, // PER channel (so if you have 10 channels, it will cache 2500 messages)
+			bans: 500,
+		},
+		users: 10_000,
+		invites: 300,
+	},
+	{
+		type: 'unlimited', // SHOULD NEVER USE THIS, THIS IS FOR TESTING ONLY
+		per: {
+			guildMembers: Number.MAX_SAFE_INTEGER,
+			messages: Number.MAX_SAFE_INTEGER, // PER channel (so if you have 10 channels, it will cache Infinity messages)
+			bans: Number.MAX_SAFE_INTEGER,
+		},
+		users: Number.MAX_SAFE_INTEGER,
+		invites: Number.MAX_SAFE_INTEGER,
+	},
+];

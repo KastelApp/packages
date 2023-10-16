@@ -6,6 +6,7 @@ export type Status =
 	| 'Connected'
 	| 'Connecting'
 	| 'Disconnected'
+	| 'DisconnectedOnPurpose'
 	| 'Failed'
 	| 'Ready'
 	| 'Reconnecting'

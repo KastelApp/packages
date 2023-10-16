@@ -1,4 +1,4 @@
-import type { Rest } from '../../Rest';
+import type { Rest } from '../../Rest/Rest';
 import type Websocket from '../../Websocket/Ws';
 
 export interface ClientOptionsUnauthed {

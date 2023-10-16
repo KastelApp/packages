@@ -6,7 +6,7 @@ import BaseGuild from '../../Structures/Guilds/BaseGuild.js';
 import BaseStore from '../BaseStore.js';
 
 /**
- * A store for guilds.
+ * A store for Guilds.
  */
 class GuildStore {
 	public guildStore: Writable<BaseStore<string, BaseGuild>>;
@@ -92,6 +92,11 @@ class GuildStore {
 			success: true,
 			guild: Guild,
 		};
+	}
+
+	public clear(): void {
+		this.guilds.clear();
+		this.guildStore.set(this.guilds);
 	}
 }
 

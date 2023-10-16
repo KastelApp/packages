@@ -4,7 +4,7 @@ import type Invite from '../../Structures/Guilds/Invite';
 import BaseStore from '../BaseStore.js';
 
 /**
- * A store for guilds.
+ * A store for Invites.
  */
 class InviteStore {
 	public inviteStore: Writable<BaseStore<string, Invite>>;
@@ -25,6 +25,11 @@ class InviteStore {
 		this.inviteStore.subscribe((value) => {
 			this.invites = value;
 		});
+	}
+
+	public clear(): void {
+		this.invites.clear();
+		this.inviteStore.set(this.invites);
 	}
 }
 

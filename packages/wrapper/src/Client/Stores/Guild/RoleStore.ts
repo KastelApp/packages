@@ -4,7 +4,7 @@ import type Role from '../../Structures/Guilds/Role';
 import BaseStore from '../BaseStore.js';
 
 /**
- * A store for guilds.
+ * A store for Roles.
  */
 class RoleStore {
 	public roleStore: Writable<BaseStore<string, Role>>;
@@ -44,6 +44,11 @@ class RoleStore {
 
 	public filter(fn: (value: Role, index: number, array: Role[]) => unknown): Role[] {
 		return this.roles.array().filter(fn);
+	}
+
+	public clear(): void {
+		this.roles.clear();
+		this.roleStore.set(this.roles);
 	}
 }
 

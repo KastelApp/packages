@@ -115,7 +115,7 @@ class Client extends EventEmitter {
 			/^(?=.*[a-zA-Z0-9!$%^&*()\-_~>.<?/\s\u0020-\uD7FF\uE000-\uFFFD])[a-zA-Z0-9!$%^&*()\-_~>.<?/\s\u0020-\uD7FF\uE000-\uFFFD]{2,30}$/; // eslint-disable-line unicorn/better-regex
 	}
 
-	public setToken(token: string): void {
+	public setToken(token: string | null): void {
 		this.Token = token;
 
 		if (this.Websocket) this.Websocket.setToken(this.Token);
@@ -162,7 +162,7 @@ class Client extends EventEmitter {
 	}
 
 	public disconnect(): void {
-		console.log('disconnecting');
+		throw new Error('[Wrapper] [Client] Disconnect is not implemented yet, please use logout() instead.');
 	}
 
 	public async registerAccount({
@@ -293,10 +293,25 @@ class Client extends EventEmitter {
 		return null;
 	}
 
+	public resetCache(): void {
+		this.channels.clear();
+		this.guilds.clear();
+		this.roles.clear();
+		this.users.clear();
+		this.guildMembers.clear();
+		this.invites.clear();
+		this.bans.clear();
+	}
+
 	public async logout(): Promise<boolean> {
+		this.Websocket.disconnect();
+
 		const { statusCode } = await this.Rest.delete(Endpoints.Logout(), {
 			noApi: true,
 		});
+
+		this.setToken(null);
+		this.resetCache();
 
 		return statusCode === 204;
 	}

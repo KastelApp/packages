@@ -4,7 +4,7 @@ import type GuildMember from '../../Structures/Guilds/GuildMember';
 import BaseStore from '../BaseStore.js';
 
 /**
- * A store for guild members
+ * A store for GuildMembers.
  */
 class GuildMemberStore {
 	public membersStore: Writable<BaseStore<string, GuildMember>>;
@@ -40,6 +40,11 @@ class GuildMemberStore {
 
 	public toArray(): GuildMember[] {
 		return this.members.array();
+	}
+
+	public clear(): void {
+		this.members.clear();
+		this.membersStore.set(this.members);
 	}
 }
 

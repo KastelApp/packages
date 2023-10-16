@@ -4,7 +4,7 @@ import type BaseUser from '../Structures/Users/BaseUser.js';
 import BaseStore from './BaseStore.js';
 
 /**
- * A store for users.
+ * A store for Users.
  */
 class UserStore {
 	public userStore: Writable<BaseStore<string, BaseUser>>;
@@ -40,6 +40,11 @@ class UserStore {
 
 	public getCurrentUser(): BaseUser | undefined {
 		return this.users.array().find((user) => user.isClient());
+	}
+
+	public clear(): void {
+		this.users.clear();
+		this.userStore.set(this.users);
 	}
 }
 

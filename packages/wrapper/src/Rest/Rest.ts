@@ -3,7 +3,7 @@
 import type { RequestInit } from '../types/Rest';
 
 class Rest {
-	private Token: string;
+	private Token: string | null;
 
 	private readonly DefaultUserAgent: string;
 
@@ -25,7 +25,7 @@ class Rest {
 		this.Api = `${this.Url}/${this.Version}`;
 	}
 
-	public setToken(token: string) {
+	public setToken(token: string | null) {
 		this.Token = token;
 
 		return this;

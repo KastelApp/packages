@@ -59,6 +59,11 @@ class ChannelStore {
 	public filter(fn: (value: BaseChannel, index: number, array: BaseChannel[]) => unknown): BaseChannel[] {
 		return this.channels.array().filter(fn);
 	}
+
+	public clear(): void {
+		this.channels.clear();
+		this.channelStore.set(this.channels);
+	}
 }
 
 export { ChannelStore };

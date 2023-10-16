@@ -3,3 +3,7 @@ export { ChannelStore } from './ChannelStore.js';
 export { GuildStore } from './Guild/GuildStore.js';
 export { RoleStore } from './Guild/RoleStore.js';
 export { UserStore } from './UserStore.js';
+export { BanStore } from './Guild/BanStore.js';
+export { GuildMemberStore } from './Guild/GuildMemberStore.js';
+export { MessageStore } from './MessageStore.js';
+export { InviteStore } from './Guild/InviteStore.js';

@@ -4,7 +4,7 @@ import type Ban from '../../Structures/Guilds/Ban';
 import BaseStore from '../BaseStore.js';
 
 /**
- * A store for guilds.
+ * A store for Bans.
  */
 class BanStore {
 	public banStore: Writable<BaseStore<string, Ban>>;
@@ -25,6 +25,11 @@ class BanStore {
 		this.banStore.subscribe((value) => {
 			this.bans = value;
 		});
+	}
+
+	public clear(): void {
+		this.bans.clear();
+		this.banStore.set(this.bans);
 	}
 }
 
