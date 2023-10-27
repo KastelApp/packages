@@ -1,6 +1,6 @@
 {
 	"name": "@kastelll/util",
-	"version": "0.2.3",
+	"version": "0.2.4",
 	"description": "These are just some utils for Kastel, stuff like Snowflake stuff etc",
 	"license": "GPL-3.0-or-later",
 	"keywords": [],

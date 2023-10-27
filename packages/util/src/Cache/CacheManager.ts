@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events';
 import process from 'node:process';
-import { setInterval } from 'node:timers';
+import { setInterval, clearInterval } from 'node:timers';
 import { CannotUseCommand, DeprecatedError } from '@kastelll/internal';
 import { Redis } from 'ioredis';
 import type { ScanStreamOptions } from 'ioredis/built/types';
@@ -9,9 +9,11 @@ interface CacheManager {
 	emit(event: 'Error', err: Error | unknown): boolean;
 	emit(event: 'MissedPing', Date: Date, Error?: Error | unknown): boolean;
 	emit(event: 'Connected', Redis: Redis): boolean;
+	emit(event: 'Close'): boolean;
 	on(event: 'Error', listener: (err: Error | unknown) => void): this;
 	on(event: 'MissedPing', listener: (Date: Date, Error?: Error | unknown) => void): this;
 	on(event: 'Connected', listener: (Redis: Redis) => void): this;
+	on(event: 'Close', listener: () => void): this;
 }
 
 class CacheManager extends EventEmitter {
@@ -106,18 +108,28 @@ class CacheManager extends EventEmitter {
 			this.PingInterval = setInterval(async () => {
 				// now if its been 15-30 seconds since the last ping, we emit a missed ping event
 				if (this.LastPing && Date.now() - this.LastPing.getTime() > this.PingIntervalNumber * 2) {
-					this.emit('MissedPing', this.LastPing);
-				} else {
-					// alright so now we *try* to ping it, if we catch an error then we emit missed ping but with the error we caught
-					try {
-						await this.RedisClient?.ping();
+					this.emit('MissedPing', this.LastPing); // Note: Missed ping errors do NOT mean it disconnected, it just means it took longer than expected to respond
+				}
 
-						this.LastPing = new Date();
-					} catch (error) {
-						this.emit('MissedPing', this.LastPing ?? new Date(), error);
-					}
+				// alright so now we *try* to ping it, if we catch an error then we emit missed ping but with the error we caught
+				try {
+					await this.RedisClient?.ping();
+
+					this.LastPing = new Date();
+				} catch (error) {
+					this.emit('MissedPing', this.LastPing ?? new Date(), error);
 				}
 			}, this.PingIntervalNumber);
+		});
+
+		this.RedisClient.on('close', () => {
+			if (this.PingInterval) {
+				clearInterval(this.PingInterval);
+
+				this.PingInterval = null;
+			}
+
+			this.emit('Close');
 		});
 	}
 
@@ -127,6 +139,14 @@ class CacheManager extends EventEmitter {
 		this.RedisClient.disconnect(Reconnect ?? false);
 
 		if (!Reconnect) this.RedisClient = null;
+
+		if (this.PingInterval) {
+			clearInterval(this.PingInterval);
+
+			this.PingInterval = null;
+		}
+
+		this.emit('Close');
 	}
 
 	public async get<T>(Key: string): Promise<T | null> {
