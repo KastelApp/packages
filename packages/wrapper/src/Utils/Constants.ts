@@ -1,16 +1,16 @@
 /* eslint-disable unicorn/prefer-math-trunc */
 /* eslint-disable sonarjs/no-identical-expressions */
 
-import type { AuthlessRoute, WebsocketSettings } from '../types/Misc/ConfigTypes';
+import type { AuthlessRoute, WebsocketSettings } from "../types/Misc/ConfigTypes";
 
 export const DefaultWebsocketSettings: WebsocketSettings = {
-	Version: '1',
-	Url: 'wss://gateway.kastelapp.com',
-	Encoding: 'json',
+	Version: "1",
+	Url: "wss://gateway.kastelapp.com",
+	Encoding: "json",
 	Compress: true,
 };
 
-export const GuildFeatures = ['Partnered', 'Verified', 'Official'] as const;
+export const GuildFeatures = ["Partnered", "Verified", "Official"] as const;
 
 export const GuildMemberFlags = {
 	Left: 1 << 0,
@@ -172,43 +172,43 @@ export const SoftCloseCodes = {
 	MissedHeartbeat: 1_001, // Missed heartbeat
 };
 
-export const PasswordRequiredFields = ['email', 'phoneNumber', 'newPassword', 'aFlags', 'rFlags'] as const;
+export const PasswordRequiredFields = ["email", "phoneNumber", "newPassword", "aFlags", "rFlags"] as const;
 
 export const AuthlessRoutes: AuthlessRoute[] = [
 	{
 		path: /^\/$/,
-		type: 'NoAuth',
+		type: "NoAuth",
 	},
 	{
 		path: /^\/login$/,
-		redirect: '/app',
-		type: 'RedirectOnAuth',
+		redirect: "/app",
+		type: "RedirectOnAuth",
 	},
 	{
 		path: /^\/register$/,
-		redirect: '/app',
-		type: 'RedirectOnAuth',
+		redirect: "/app",
+		type: "RedirectOnAuth",
 	},
 	{
 		path: /^\/logout$/,
-		type: 'Auth',
+		type: "Auth",
 	},
 	{
 		path: /^\/verify$/,
-		type: 'NoAuth',
+		type: "NoAuth",
 	},
 	{
 		path: /^\/404$/,
-		type: 'NoAuth',
+		type: "NoAuth",
 	},
 	{
 		path: /^\/branding$/,
-		type: 'NoAuth',
+		type: "NoAuth",
 	},
 	{
 		path: /^\/app\/?.*/,
-		redirect: '/login',
-		type: 'Auth',
+		redirect: "/login",
+		type: "Auth",
 	},
 ];
 
@@ -222,7 +222,7 @@ export enum MessageStates {
 // How we handle caching, types: low, medium, high, very high, unlimited (unlimited will keep everything cached)
 export const DataCachingConfigurations = [
 	{
-		type: 'low',
+		type: "low",
 		per: {
 			guildMembers: 200,
 			messages: 50, // PER channel (so if you have 10 channels, it will cache 500 messages)
@@ -233,7 +233,7 @@ export const DataCachingConfigurations = [
 	},
 	{
 		// no comments on this besides messages one
-		type: 'medium',
+		type: "medium",
 		per: {
 			guildMembers: 1_000,
 			messages: 150, // PER channel (so if you have 10 channels, it will cache 1500 messages)
@@ -243,7 +243,7 @@ export const DataCachingConfigurations = [
 		invites: 300,
 	},
 	{
-		type: 'high',
+		type: "high",
 		per: {
 			guildMembers: 5_000,
 			messages: 250, // PER channel (so if you have 10 channels, it will cache 2500 messages)
@@ -253,7 +253,7 @@ export const DataCachingConfigurations = [
 		invites: 300,
 	},
 	{
-		type: 'very high',
+		type: "very high",
 		per: {
 			guildMembers: 10_000,
 			messages: 250, // PER channel (so if you have 10 channels, it will cache 2500 messages)
@@ -263,7 +263,7 @@ export const DataCachingConfigurations = [
 		invites: 300,
 	},
 	{
-		type: 'unlimited', // SHOULD NEVER USE THIS, THIS IS FOR TESTING ONLY
+		type: "unlimited", // SHOULD NEVER USE THIS, THIS IS FOR TESTING ONLY
 		per: {
 			guildMembers: Number.MAX_SAFE_INTEGER,
 			messages: Number.MAX_SAFE_INTEGER, // PER channel (so if you have 10 channels, it will cache Infinity messages)

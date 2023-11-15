@@ -1,8 +1,8 @@
-import { Endpoints } from '../../../Utils/R&E.js';
-import type { EditableUser } from '../../../types/Client/User.js';
-import type { UserObject } from '../../../types/Websocket/Payloads/Auth.js';
-import type { Client } from '../../Client.js';
-import Flags from '../Flags.js';
+import { Endpoints } from "../../../Utils/R&E.js";
+import type { EditableUser } from "../../../types/Client/User.js";
+import type { UserObject } from "../../../types/Websocket/Payloads/Auth.js";
+import type { Client } from "../../Client.js";
+import Flags from "../Flags.js";
 
 class BaseUser {
 	private readonly Client: Client;
@@ -39,7 +39,7 @@ class BaseUser {
 		this.Client = Client;
 
 		if (!this.Client) {
-			throw new Error('[Wrapper] [BaseUser] You cannot create a user without a client');
+			throw new Error("[Wrapper] [BaseUser] You cannot create a user without a client");
 		}
 
 		this._RawUser = RawUser;
@@ -105,7 +105,7 @@ class BaseUser {
 				PhoneNumber: phoneNumber,
 				Tag: tag,
 				Username: username,
-				...(this.flags.has('Staff')
+				...(this.flags.has("Staff")
 					? {
 							AFlags: aFlags,
 							RFlags: rFlags,

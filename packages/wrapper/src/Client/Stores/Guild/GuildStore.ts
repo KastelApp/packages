@@ -1,16 +1,13 @@
-import { type Writable, writable } from 'svelte/store';
-import { Endpoints } from '../../../Utils/R&E.js';
-import type { CreateGuild, GuildResponse } from '../../../types/Client/Guild';
-import type Client from '../../Client';
-import BaseGuild from '../../Structures/Guilds/BaseGuild.js';
-import BaseStore from '../BaseStore.js';
+import { Endpoints } from "../../../Utils/R&E.js";
+import type { CreateGuild, GuildResponse } from "../../../types/Client/Guild";
+import type Client from "../../Client";
+import BaseGuild from "../../Structures/Guilds/BaseGuild.js";
+import BaseStore from "../BaseStore.js";
 
 /**
  * A store for Guilds.
  */
 class GuildStore {
-	public guildStore: Writable<BaseStore<string, BaseGuild>>;
-
 	private readonly client: Client;
 
 	public _currentGuild: string | null;
@@ -18,17 +15,11 @@ class GuildStore {
 	public guilds: BaseStore<string, BaseGuild> = new BaseStore();
 
 	public constructor(client: Client) {
-		this.guildStore = writable(new BaseStore<string, BaseGuild>());
-
 		this.client = client;
 
 		if (this.client) {
 			//
 		}
-
-		this.guildStore.subscribe((value) => {
-			this.guilds = value;
-		});
 
 		this._currentGuild = null;
 	}
@@ -39,13 +30,12 @@ class GuildStore {
 
 	public set(id: string, value: BaseGuild): this {
 		this.guilds.set(id, value);
-		this.guildStore.set(this.guilds);
 
 		return this;
 	}
 
 	public get currentGuild(): BaseGuild | undefined {
-		return this.guilds.get(this._currentGuild ?? '');
+		return this.guilds.get(this._currentGuild ?? "");
 	}
 
 	public toArray(): BaseGuild[] {
@@ -55,7 +45,7 @@ class GuildStore {
 	public setCurrentGuild(value: BaseGuild | string | undefined) {
 		if (value instanceof BaseGuild) {
 			this._currentGuild = value.id;
-		} else if (typeof value === 'string') {
+		} else if (typeof value === "string") {
 			this._currentGuild = value;
 		} else {
 			this._currentGuild = null;
@@ -78,8 +68,8 @@ class GuildStore {
 				success: false,
 				errors: {
 					description: false,
-					name: NameError?.Code === 'MissingName',
-					maxGuilds: MaxGuildError?.Code === 'MaxGuildsReached',
+					name: NameError?.Code === "MissingName",
+					maxGuilds: MaxGuildError?.Code === "MaxGuildsReached",
 				},
 			};
 		}
@@ -96,7 +86,6 @@ class GuildStore {
 
 	public clear(): void {
 		this.guilds.clear();
-		this.guildStore.set(this.guilds);
 	}
 }
 

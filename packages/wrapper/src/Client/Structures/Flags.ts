@@ -1,4 +1,4 @@
-import { Flags as FlagsConstant } from '../../Utils/Constants.js';
+import { Flags as FlagsConstant } from "../../Utils/Constants.js";
 
 class Flags {
 	private SetFlags: bigint;
@@ -8,13 +8,13 @@ class Flags {
 	}
 
 	public has(Flag: bigint | number | keyof typeof FlagsConstant) {
-		const FoundFlag = typeof Flag === 'string' ? FlagsConstant[Flag] : BigInt(Flag);
+		const FoundFlag = typeof Flag === "string" ? FlagsConstant[Flag] : BigInt(Flag);
 
 		return (this.SetFlags & FoundFlag) === FoundFlag;
 	}
 
 	public add(Flag: bigint | number | keyof typeof FlagsConstant) {
-		const FoundFlag = typeof Flag === 'string' ? FlagsConstant[Flag] : BigInt(Flag);
+		const FoundFlag = typeof Flag === "string" ? FlagsConstant[Flag] : BigInt(Flag);
 
 		this.SetFlags |= FoundFlag;
 
@@ -22,7 +22,7 @@ class Flags {
 	}
 
 	public remove(Flag: bigint | number | keyof typeof FlagsConstant) {
-		const FoundFlag = typeof Flag === 'string' ? FlagsConstant[Flag] : BigInt(Flag);
+		const FoundFlag = typeof Flag === "string" ? FlagsConstant[Flag] : BigInt(Flag);
 
 		this.SetFlags &= ~FoundFlag;
 

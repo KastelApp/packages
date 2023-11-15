@@ -1,24 +1,24 @@
 /* eslint-disable no-restricted-globals */
 /* eslint-disable unicorn/prefer-node-protocol */
-import EventEmitter from 'events';
-import Rest from '../Rest/Rest.js';
-import { DefaultWebsocketSettings } from '../Utils/Constants.js';
-import { Endpoints } from '../Utils/R&E.js';
-import StringFormatter from '../Utils/StringFormatter.js';
-import Websocket from '../Websocket/Ws.js';
-import type { ClientOptions, RegisterAndLogin } from '../types/Client';
-import type { LoginOptions, RegisterAccountOptions } from '../types/Client/Options.js';
-import type { RegisterResponse } from '../types/Rest/Responses/RegisterAndLoggingIn.js';
-import BanStore from './Stores/Guild/BanStore.js';
-import GuildMemberStore from './Stores/Guild/GuildMemberStore.js';
-import InviteStore from './Stores/Guild/InviteStore.js';
-import { ChannelStore, GuildStore, RoleStore, UserStore } from './Stores/index.js';
-import BaseGuild from './Structures/Guilds/BaseGuild.js';
-import BaseUser from './Structures/Users/BaseUser.js';
+import EventEmitter from "events";
+import Rest from "../Rest/Rest.js";
+import { DefaultWebsocketSettings } from "../Utils/Constants.js";
+import { Endpoints } from "../Utils/R&E.js";
+import StringFormatter from "../Utils/StringFormatter.js";
+import Websocket from "../Websocket/Ws.js";
+import type { ClientOptions, RegisterAndLogin } from "../types/Client";
+import type { LoginOptions, RegisterAccountOptions } from "../types/Client/Options.js";
+import type { RegisterResponse } from "../types/Rest/Responses/RegisterAndLoggingIn.js";
+import BanStore from "./Stores/Guild/BanStore.js";
+import GuildMemberStore from "./Stores/Guild/GuildMemberStore.js";
+import InviteStore from "./Stores/Guild/InviteStore.js";
+import { ChannelStore, GuildStore, RoleStore, UserStore } from "./Stores/index.js";
+import BaseGuild from "./Structures/Guilds/BaseGuild.js";
+import BaseUser from "./Structures/Users/BaseUser.js";
 
 interface Client {
-	emit(event: 'ready' | 'unAuthed' | 'unReady'): boolean;
-	on(event: 'ready' | 'unAuthed' | 'unReady', listener: () => void): this;
+	emit(event: "ready" | "unAuthed" | "unReady"): boolean;
+	on(event: "ready" | "unAuthed" | "unReady", listener: () => void): this;
 }
 
 class Client extends EventEmitter {
@@ -76,7 +76,7 @@ class Client extends EventEmitter {
 		if (!options.unAuthed && !options.Websocket) {
 			this.Websocket = new Websocket(DefaultWebsocketSettings, this)
 				.setToken(options.token)
-				.setVersion(this.Version.replace('v', ''))
+				.setVersion(this.Version.replace("v", ""))
 				.setUrl(this.WsUrl)
 				.setWorker(this.Worker);
 		} else if (!options.unAuthed && options.Websocket) {
@@ -133,14 +133,14 @@ class Client extends EventEmitter {
 
 		if (this.Websocket) this.Websocket.connect();
 
-		if (!this.Websocket) throw new Error('[Wrapper] [Client] Websocket is not defined, did you forget to set it?');
+		if (!this.Websocket) throw new Error("[Wrapper] [Client] Websocket is not defined, did you forget to set it?");
 
-		this.Websocket.on('authed', (data) => {
+		this.Websocket.on("authed", (data) => {
 			this.users.set(data.User.Id, new BaseUser(this, data.User, true));
 
 			for (const guild of data.Guilds) {
 				console.log(
-					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.orange('[Client')} Adding guild ${guild.Name} (${
+					`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.orange("[Client")} Adding guild ${guild.Name} (${
 						guild.Id
 					})`,
 					guild,
@@ -149,20 +149,20 @@ class Client extends EventEmitter {
 				this.guilds.set(guild.Id, new BaseGuild(this, guild));
 			}
 
-			this.emit('ready');
+			this.emit("ready");
 		});
 
-		this.Websocket.on('unAuthed', () => {
-			this.emit('unAuthed');
+		this.Websocket.on("unAuthed", () => {
+			this.emit("unAuthed");
 		});
 
-		this.Websocket.on('closed', () => {
-			this.emit('unReady');
+		this.Websocket.on("closed", () => {
+			this.emit("unReady");
 		});
 	}
 
 	public disconnect(): void {
-		throw new Error('[Wrapper] [Client] Disconnect is not implemented yet, please use logout() instead.');
+		throw new Error("[Wrapper] [Client] Disconnect is not implemented yet, please use logout() instead.");
 	}
 
 	public async registerAccount({
@@ -203,12 +203,12 @@ class Client extends EventEmitter {
 			return {
 				success: false,
 				errors: {
-					email: EmailError?.Code === 'InvalidEmail',
-					password: PasswordError?.Code === 'InvalidPassword',
-					username: UsernameError?.Code === 'InvalidUsername',
-					maxUsernames: UsernameError?.Code === 'MaxUsernames',
+					email: EmailError?.Code === "InvalidEmail",
+					password: PasswordError?.Code === "InvalidPassword",
+					username: UsernameError?.Code === "InvalidUsername",
+					maxUsernames: UsernameError?.Code === "MaxUsernames",
 					unknown: Object.fromEntries(
-						Object.entries(json.Errors ?? {}).filter(([key]) => !['Email', 'Password', 'Username'].includes(key)),
+						Object.entries(json.Errors ?? {}).filter(([key]) => !["Email", "Password", "Username"].includes(key)),
 					),
 				},
 			};
@@ -223,7 +223,7 @@ class Client extends EventEmitter {
 				this.Rest.setToken(json.Token);
 
 				this.Websocket.setToken(json.Token)
-					.setVersion(this.Version?.replace('v', '') as string)
+					.setVersion(this.Version?.replace("v", "") as string)
 					.setUrl(this.WsUrl as string)
 					.setWorker(this.Worker);
 			}
@@ -261,10 +261,10 @@ class Client extends EventEmitter {
 			return {
 				success: false,
 				errors: {
-					email: EmailError?.Code === 'InvalidEmail',
-					password: PasswordError?.Code === 'InvalidPassword',
+					email: EmailError?.Code === "InvalidEmail",
+					password: PasswordError?.Code === "InvalidPassword",
 					unknown: Object.fromEntries(
-						Object.entries(json.Errors ?? {}).filter(([key]) => !['Email', 'Password'].includes(key)),
+						Object.entries(json.Errors ?? {}).filter(([key]) => !["Email", "Password"].includes(key)),
 					),
 				},
 			};
@@ -279,7 +279,7 @@ class Client extends EventEmitter {
 				this.Rest.setToken(json.Token);
 
 				this.Websocket.setToken(json.Token)
-					.setVersion(this.Version?.replace('v', '') as string)
+					.setVersion(this.Version?.replace("v", "") as string)
 					.setUrl(this.WsUrl as string)
 					.setWorker(this.Worker);
 			}

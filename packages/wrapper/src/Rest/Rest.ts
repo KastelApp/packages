@@ -1,6 +1,6 @@
 // 'GET', 'POST', 'DELETE', 'PATCH', 'PUT' these are all the methods the api supports for now
 
-import type { RequestInit } from '../types/Rest';
+import type { RequestInit } from "../types/Rest";
 
 class Rest {
 	private Token: string | null;
@@ -14,13 +14,13 @@ class Rest {
 	public Api: string;
 
 	public constructor(token?: string) {
-		this.Token = token ?? '';
+		this.Token = token ?? "";
 
 		this.DefaultUserAgent = window.navigator.userAgent;
 
-		this.Version = 'v1';
+		this.Version = "v1";
 
-		this.Url = `http://localhost:62250`;
+		this.Url = "http://localhost:62250";
 
 		this.Api = `${this.Url}/${this.Version}`;
 	}
@@ -34,21 +34,21 @@ class Rest {
 	public setVersion(version: string) {
 		this.Version = version;
 
-		this.Api = `${this.Url.endsWith('/') ? this.Url.slice(0, -1) : this.Url}/${this.Version}`;
+		this.Api = `${this.Url.endsWith("/") ? this.Url.slice(0, -1) : this.Url}/${this.Version}`;
 
 		return this;
 	}
 
 	public setUrl(url: string) {
-		this.Url = url.startsWith('http') ? url : `http://${url}`;
+		this.Url = url.startsWith("http") ? url : `http://${url}`;
 
-		this.Api = `${this.Url.endsWith('/') ? this.Url.slice(0, -1) : this.Url}/${this.Version}`;
+		this.Api = `${this.Url.endsWith("/") ? this.Url.slice(0, -1) : this.Url}/${this.Version}`;
 
 		return this;
 	}
 
 	public async fetch<T = any>(
-		method: 'DELETE' | 'GET' | 'PATCH' | 'POST' | 'PUT',
+		method: "DELETE" | "GET" | "PATCH" | "POST" | "PUT",
 		endpoint: string,
 		options?: RequestInit,
 	): Promise<{
@@ -62,9 +62,9 @@ class Rest {
 
 			if (options?.body) {
 				if (options?.body instanceof FormData) {
-					Headers['Content-Type'] = 'multipart/form-data';
+					Headers["Content-Type"] = "multipart/form-data";
 				} else {
-					Headers['Content-Type'] = 'application/json';
+					Headers["Content-Type"] = "application/json";
 				}
 			}
 
@@ -72,7 +72,7 @@ class Rest {
 				Headers.Authorization = `${this.Token}`;
 			}
 
-			Headers['User-Agent'] = options?.userAgent ?? this.DefaultUserAgent;
+			Headers["User-Agent"] = options?.userAgent ?? this.DefaultUserAgent;
 
 			const url = options?.noApi ? this.ApiUrlWithNoVersion : this.Api;
 
@@ -84,11 +84,11 @@ class Rest {
 					: {}),
 			})
 				.catch((error) => {
-					console.log('Failed to create the channel', error);
+					console.log("Failed to create the channel", error);
 
 					resolve({
 						statusCode: 500,
-						text: '',
+						text: "",
 						headers: null,
 						json: null as any,
 					});
@@ -99,7 +99,7 @@ class Rest {
 						const text = await res.text();
 
 						const ShouldParse =
-							headers.has('content-type') && headers.get('content-type')?.includes('application/json');
+							headers.has("content-type") && headers.get("content-type")?.includes("application/json");
 
 						resolve({
 							statusCode: res.status,
@@ -113,27 +113,27 @@ class Rest {
 	}
 
 	private get ApiUrlWithNoVersion() {
-		return this.Api.replace(`/${this.Version}`, '');
+		return this.Api.replace(`/${this.Version}`, "");
 	}
 
 	public async get<T = any>(endpoint: string, options?: RequestInit) {
-		return this.fetch<T>('GET', endpoint, options);
+		return this.fetch<T>("GET", endpoint, options);
 	}
 
 	public async post<T = any>(endpoint: string, options?: RequestInit) {
-		return this.fetch<T>('POST', endpoint, options);
+		return this.fetch<T>("POST", endpoint, options);
 	}
 
 	public async delete<T = any>(endpoint: string, options?: RequestInit) {
-		return this.fetch<T>('DELETE', endpoint, options);
+		return this.fetch<T>("DELETE", endpoint, options);
 	}
 
 	public async patch<T = any>(endpoint: string, options?: RequestInit) {
-		return this.fetch<T>('PATCH', endpoint, options);
+		return this.fetch<T>("PATCH", endpoint, options);
 	}
 
 	public async put<T = any>(endpoint: string, options?: RequestInit) {
-		return this.fetch<T>('PUT', endpoint, options);
+		return this.fetch<T>("PUT", endpoint, options);
 	}
 }
 

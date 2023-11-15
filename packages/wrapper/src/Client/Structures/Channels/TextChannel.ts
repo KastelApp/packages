@@ -1,4 +1,4 @@
-import BaseChannel from './BaseChannel.js';
+import BaseChannel from "./BaseChannel.js";
 
 class TextChannel extends BaseChannel {
 	public setParent(parentId: string) {

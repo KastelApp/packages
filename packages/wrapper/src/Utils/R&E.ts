@@ -1,24 +1,24 @@
 const Endpoints = {
 	Login: () => {
-		return '/auth/login';
+		return "/auth/login";
 	},
 	Register: () => {
-		return '/auth/register';
+		return "/auth/register";
 	},
 	ForgotPassword: () => {
-		return '/auth/forgot';
+		return "/auth/forgot";
 	},
 	Logout: () => {
-		return '/auth/logout';
+		return "/auth/logout";
 	},
 	ResetPassword: () => {
-		return '/auth/reset';
+		return "/auth/reset";
 	},
 	Validate: () => {
-		return '/auth/verify/validate';
+		return "/auth/verify/validate";
 	},
 	VerifyEmail: () => {
-		return '/auth/verify';
+		return "/auth/verify";
 	},
 	Channel: (ChannelId: string) => {
 		return `/channels/${ChannelId}`;
@@ -33,13 +33,13 @@ const Endpoints = {
 		return `/channels/${ChannelId}/messages/${MessageId}`;
 	},
 	Guilds: () => {
-		return '/guilds';
+		return "/guilds";
 	},
 	NewGuild: () => {
-		return '/guilds/new';
+		return "/guilds/new";
 	},
 	Guild: (GuildId?: string) => {
-		return `/guilds${GuildId ? `/${GuildId}` : ''}`;
+		return `/guilds${GuildId ? `/${GuildId}` : ""}`;
 	},
 	GuildChannels: (GuildId: string) => {
 		return `/guilds/${GuildId}/channels`;
@@ -78,20 +78,20 @@ const Endpoints = {
 		return `/invites/${InviteCode}/join`;
 	},
 	DMs: () => {
-		return '/users/@me/dms';
+		return "/users/@me/dms";
 	},
 	DisableAccount: () => {
-		return '/users/@me/disable';
+		return "/users/@me/disable";
 	},
 	User: (UserId?: string) => {
-		return `/users/${UserId ?? '@me'}`;
+		return `/users/${UserId ?? "@me"}`;
 	},
 	UserFriends: (UserId?: string) => {
 		// If a userid is provided we will return mutual friends
-		return `/users/${UserId ?? '@me'}/friends`;
+		return `/users/${UserId ?? "@me"}/friends`;
 	},
 	UserSessions: () => {
-		return '/users/@me/sessions';
+		return "/users/@me/sessions";
 	},
 	UserBlock: (UserId: string) => {
 		return `/users/${UserId}/block`;
@@ -103,16 +103,16 @@ const Endpoints = {
 
 const Routes = {
 	Login: () => {
-		return '/login';
+		return "/login";
 	},
 	Register: () => {
-		return '/register';
+		return "/register";
 	},
 	ForgotPassword: () => {
-		return '/reset-password';
+		return "/reset-password";
 	},
 	Logout: () => {
-		return '/logout';
+		return "/logout";
 	},
 };
 

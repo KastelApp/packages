@@ -1,6 +1,6 @@
 {
 	"name": "@kastelll/wrapper",
-	"version": "0.1.9-beta.6",
+	"version": "0.1.9-beta.7",
 	"description": "This is a API & WS Wrapper for Kastel, Handles almost everything",
 	"license": "GPL-3.0-or-later",
 	"keywords": [],
@@ -60,7 +60,6 @@
 	},
 	"dependencies": {
 		"events": "^3.3.0",
-		"pako": "^2.1.0",
-		"svelte": "^4.2.1"
+		"pako": "^2.1.0"
 	}
 }

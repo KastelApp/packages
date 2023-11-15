@@ -1,8 +1,8 @@
-import { ChannelTypes } from '../../../Utils/Constants.js';
-import { Endpoints } from '../../../Utils/R&E.js';
-import type { Channel } from '../../../types/Websocket/Payloads/Auth.js';
-import type { Client } from '../../Client.js';
-import Permissions from '../Permissions.js';
+import { ChannelTypes } from "../../../Utils/Constants.js";
+import { Endpoints } from "../../../Utils/R&E.js";
+import type { Channel } from "../../../types/Websocket/Payloads/Auth.js";
+import type { Client } from "../../Client.js";
+import Permissions from "../Permissions.js";
 
 class BaseChannel {
 	public readonly Client: Client;
@@ -38,7 +38,7 @@ class BaseChannel {
 		this.Client = Client;
 
 		if (!this.Client) {
-			throw new Error('[Wrapper] [BaseUser] You cannot create a user without a client');
+			throw new Error("[Wrapper] [BaseUser] You cannot create a user without a client");
 		}
 
 		this.type = Object.entries(ChannelTypes).find(
@@ -122,24 +122,24 @@ class BaseChannel {
 
 	public isTextBased() {
 		return (
-			this.type === 'GuildText' ||
-			this.type === 'Dm' ||
-			this.type === 'GroupChat' ||
-			this.type === 'GuildRules' ||
-			this.type === 'GuildNews' ||
-			this.type === 'GuildNewMember'
+			this.type === "GuildText" ||
+			this.type === "Dm" ||
+			this.type === "GroupChat" ||
+			this.type === "GuildRules" ||
+			this.type === "GuildNews" ||
+			this.type === "GuildNewMember"
 		);
 	}
 
 	public isChattable() {
 		// soon check roles & permission overrides
 		return (
-			this.type === 'GuildText' ||
-			this.type === 'Dm' ||
-			this.type === 'GroupChat' ||
-			this.type === 'GuildNewMember' ||
-			this.type === 'GuildRules' ||
-			this.type === 'GuildNews'
+			this.type === "GuildText" ||
+			this.type === "Dm" ||
+			this.type === "GroupChat" ||
+			this.type === "GuildNewMember" ||
+			this.type === "GuildRules" ||
+			this.type === "GuildNews"
 		);
 	}
 }

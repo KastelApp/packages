@@ -1,4 +1,4 @@
-import { Permissions as PermissionConstants } from '../../Utils/Constants.js';
+import { Permissions as PermissionConstants } from "../../Utils/Constants.js";
 
 class Permissions {
 	private SetPermissions: bigint;
@@ -8,13 +8,13 @@ class Permissions {
 	}
 
 	public has(Permission: bigint | number | keyof typeof PermissionConstants) {
-		const FoundPermission = typeof Permission === 'string' ? PermissionConstants[Permission] : BigInt(Permission);
+		const FoundPermission = typeof Permission === "string" ? PermissionConstants[Permission] : BigInt(Permission);
 
 		return (this.SetPermissions & FoundPermission) === FoundPermission;
 	}
 
 	public add(Permission: bigint | number | keyof typeof PermissionConstants) {
-		const FoundPermission = typeof Permission === 'string' ? PermissionConstants[Permission] : BigInt(Permission);
+		const FoundPermission = typeof Permission === "string" ? PermissionConstants[Permission] : BigInt(Permission);
 
 		this.SetPermissions |= FoundPermission;
 
@@ -22,7 +22,7 @@ class Permissions {
 	}
 
 	public remove(Permission: bigint | number | keyof typeof PermissionConstants) {
-		const FoundPermission = typeof Permission === 'string' ? PermissionConstants[Permission] : BigInt(Permission);
+		const FoundPermission = typeof Permission === "string" ? PermissionConstants[Permission] : BigInt(Permission);
 
 		this.SetPermissions &= ~FoundPermission;
 

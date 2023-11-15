@@ -5,7 +5,8 @@
 		"project": "./tsconfig.json"
 	},
 	"rules": {
-		"@typescript-eslint/consistent-type-definitions": ["error", "interface"]
+		"@typescript-eslint/consistent-type-definitions": ["error", "interface"],
+		"quotes": ["error", "double", { "avoidEscape": true }]
 	},
 	"ignorePatterns": ["**/dist/*"]
 }

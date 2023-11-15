@@ -18,7 +18,7 @@ export interface TurnstileValidationResponse {
 	/**
 	 * A list of errors that occurred.
 	 */
-	'error-codes'?: TurnstileValidationErrorCode[];
+	"error-codes"?: TurnstileValidationErrorCode[];
 	/**
 	 * The hostname for which the challenge was served.
 	 */
@@ -33,28 +33,28 @@ export type TurnstileValidationErrorCode =
 	/**
 	 * The request was rejected because it was malformed.
 	 */
-	| 'bad-request'
+	| "bad-request"
 	/**
 	 * An internal error happened while validating the response. The request can be retried.
 	 */
-	| 'internal-error'
+	| "internal-error"
 	/**
 	 * The response parameter is invalid or has expired.
 	 */
-	| 'invalid-input-response'
+	| "invalid-input-response"
 	/**
 	 * The secret parameter was invalid or did not exist.
 	 */
-	| 'invalid-input-secret'
+	| "invalid-input-secret"
 	/**
 	 * The response parameter was not passed.
 	 */
-	| 'missing-input-response'
+	| "missing-input-response"
 	/**
 	 * The secret parameter was not passed.
 	 */
-	| 'missing-input-secret'
+	| "missing-input-secret"
 	/**
 	 * The response parameter has already been validated before.
 	 */
-	| 'timeout-or-duplicate';
+	| "timeout-or-duplicate";

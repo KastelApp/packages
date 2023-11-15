@@ -1,6 +1,6 @@
-import type BaseGuild from '../../Client/Structures/Guilds/BaseGuild';
-import type { ResponseBody } from '../Rest';
-import type { Guild } from '../Websocket/Payloads/Auth';
+import type BaseGuild from "../../Client/Structures/Guilds/BaseGuild";
+import type { ResponseBody } from "../Rest";
+import type { Guild } from "../Websocket/Payloads/Auth";
 
 export type GuildResponse = Guild & ResponseBody;
 
