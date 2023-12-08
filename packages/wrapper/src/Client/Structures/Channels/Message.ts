@@ -1,5 +1,5 @@
-import { MessageStates } from "../../../Utils/Constants";
-import type Client from "../../Client";
+import { MessageStates } from '../../../Utils/Constants';
+import type Client from '../../Client';
 
 class Message {
 	private readonly client: Client;

@@ -1,16 +1,16 @@
-export type Encoding = "json";
+export type Encoding = 'json';
 
-export type ConnectionType = "client" | "system";
+export type ConnectionType = 'client' | 'system';
 
 export type Status =
-	| "Connected"
-	| "Connecting"
-	| "Disconnected"
-	| "DisconnectedOnPurpose"
-	| "Failed"
-	| "Ready"
-	| "Reconnecting"
-	| "ReconnectingResumeable";
+	| 'Connected'
+	| 'Connecting'
+	| 'Disconnected'
+	| 'DisconnectedOnPurpose'
+	| 'Failed'
+	| 'Ready'
+	| 'Reconnecting'
+	| 'ReconnectingResumeable';
 
 export interface WebsocketSettings {
 	Compress: boolean;
@@ -23,5 +23,5 @@ export interface WebsocketSettings {
 export interface AuthlessRoute {
 	path: RegExp | string;
 	redirect?: string;
-	type: "Auth" | "NoAuth" | "RedirectOnAuth";
+	type: 'Auth' | 'NoAuth' | 'RedirectOnAuth';
 }

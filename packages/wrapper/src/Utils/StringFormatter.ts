@@ -1,14 +1,14 @@
 class StringFormatter {
 	public static colors = {
-		reset: "\u001B[0m",
-		purple: "\u001B[35m",
-		orange: "\u001B[33m",
-		green: "\u001B[32m",
-		red: "\u001B[31m",
-		blue: "\u001B[34m",
-		yellow: "\u001B[33m",
-		cyan: "\u001B[36m",
-		white: "\u001B[37m",
+		reset: '\u001B[0m',
+		purple: '\u001B[35m',
+		orange: '\u001B[33m',
+		green: '\u001B[32m',
+		red: '\u001B[31m',
+		blue: '\u001B[34m',
+		yellow: '\u001B[33m',
+		cyan: '\u001B[36m',
+		white: '\u001B[37m',
 	};
 
 	public static purple(str: string): string {

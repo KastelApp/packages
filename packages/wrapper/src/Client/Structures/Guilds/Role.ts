@@ -1,6 +1,6 @@
-import type { Role as RoleType } from "../../../types/Websocket/Payloads/Auth.js";
-import type { Client } from "../../Client.js";
-import Permissions from "../Permissions.js";
+import type { Role as RoleType } from '../../../types/Websocket/Payloads/Auth.js';
+import type { Client } from '../../Client.js';
+import Permissions from '../Permissions.js';
 
 class Role {
 	private readonly Client: Client;
@@ -31,7 +31,7 @@ class Role {
 		this.Client = client;
 
 		if (!this.Client) {
-			throw new Error("[Wrapper] [BaseRole] You cannot create a guild without a client");
+			throw new Error('[Wrapper] [BaseRole] You cannot create a guild without a client');
 		}
 
 		this.id = RawRole.Id;

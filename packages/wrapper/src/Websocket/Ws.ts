@@ -1,20 +1,20 @@
 /* eslint-disable sonarjs/no-nested-switch */
 /* eslint-disable no-restricted-globals */
 /* eslint-disable unicorn/prefer-node-protocol */
-import { EventEmitter } from "events";
-import pako from "pako";
-import type Client from "../Client/Client.js";
-import BaseChannel from "../Client/Structures/Channels/BaseChannel.js";
-import CategoryChannel from "../Client/Structures/Channels/CategoryChannel.js";
-import TextChannel from "../Client/Structures/Channels/TextChannel.js";
-import BaseGuild from "../Client/Structures/Guilds/BaseGuild.js";
-import { ChannelTypes, DefaultWebsocketSettings, HardCloseCodes, ServerOpCodes } from "../Utils/Constants.js";
-import StringFormatter from "../Utils/StringFormatter.js";
-import type { ConnectionType, Encoding, Status, WebsocketSettings } from "../types/Misc/ConfigTypes";
-import type { WorkerData } from "../types/Misc/index.js";
-import type { Guild, IdentifyPayload } from "../types/Websocket/Payloads/Auth.js";
-import type { ChannelPayload } from "../types/Websocket/Payloads/Channel.js";
-import Payloads from "./Payloads.js";
+import { EventEmitter } from 'events';
+import pako from 'pako';
+import type Client from '../Client/Client.js';
+import BaseChannel from '../Client/Structures/Channels/BaseChannel.js';
+import CategoryChannel from '../Client/Structures/Channels/CategoryChannel.js';
+import TextChannel from '../Client/Structures/Channels/TextChannel.js';
+import BaseGuild from '../Client/Structures/Guilds/BaseGuild.js';
+import { ChannelTypes, DefaultWebsocketSettings, HardCloseCodes, ServerOpCodes } from '../Utils/Constants.js';
+import StringFormatter from '../Utils/StringFormatter.js';
+import type { ConnectionType, Encoding, Status, WebsocketSettings } from '../types/Misc/ConfigTypes';
+import type { WorkerData } from '../types/Misc/index.js';
+import type { Guild, IdentifyPayload } from '../types/Websocket/Payloads/Auth.js';
+import type { ChannelPayload } from '../types/Websocket/Payloads/Channel.js';
+import Payloads from './Payloads.js';
 
 const OpCodes = {
 	Hello: 0, // Worker > Client
@@ -28,10 +28,10 @@ const minPercentage = 0.7;
 const maxPercentage = 1;
 
 interface Websocket {
-	emit(event: "closed" | "open" | "unAuthed"): boolean;
-	emit(event: "authed", data: IdentifyPayload): boolean;
-	on(event: "authed", listener: (data: IdentifyPayload) => void): this;
-	on(event: "closed" | "open" | "unAuthed", listener: () => void): this;
+	emit(event: 'closed' | 'open' | 'unAuthed'): boolean;
+	emit(event: 'authed', data: IdentifyPayload): boolean;
+	on(event: 'authed', listener: (data: IdentifyPayload) => void): this;
+	on(event: 'closed' | 'open' | 'unAuthed', listener: () => void): this;
 }
 
 class Websocket extends EventEmitter {
@@ -94,7 +94,7 @@ class Websocket extends EventEmitter {
 
 		this.Gateway = null;
 
-		this.ConnectionType = "client";
+		this.ConnectionType = 'client';
 
 		this.LastHeartbeatAck = -1;
 
@@ -104,11 +104,11 @@ class Websocket extends EventEmitter {
 
 		this.Ready = false;
 
-		this.SessionId = "";
+		this.SessionId = '';
 
 		this.Sequence = -1;
 
-		this.Status = "Disconnected";
+		this.Status = 'Disconnected';
 
 		this.Client = client ?? null;
 
@@ -155,25 +155,25 @@ class Websocket extends EventEmitter {
 		}
 
 		if (!this.Token) {
-			throw new Error("[Wrapper] [Websocket] No token provided");
+			throw new Error('[Wrapper] [Websocket] No token provided');
 		}
 
 		this.Gateway = new WebSocket(`${this.Url}/${this.ConnectionType}?v=${this.Version}&encoding=${this.Encoding}`);
 
 		this.handleWebsocket();
 
-		this.Status = "Connecting";
+		this.Status = 'Connecting';
 
 		console.log(
-			`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green("[Websocket]")}`,
-			"Changing status to Connecting",
+			`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+			'Changing status to Connecting',
 		);
 
 		return this.Gateway;
 	}
 
 	public disconnect() {
-		this.Status = "DisconnectedOnPurpose";
+		this.Status = 'DisconnectedOnPurpose';
 
 		this.Gateway?.close();
 	}
@@ -184,7 +184,7 @@ class Websocket extends EventEmitter {
 
 	public send(data: string) {
 		if (!this.Gateway || this.Gateway.readyState !== WebSocket.OPEN) {
-			throw new Error("[Wrapper] [Websocket] No gateway or gateway is not open");
+			throw new Error('[Wrapper] [Websocket] No gateway or gateway is not open');
 		}
 
 		this.Gateway?.send(data);
@@ -192,11 +192,11 @@ class Websocket extends EventEmitter {
 
 	private handleWebsocket() {
 		if (!this.Gateway) {
-			throw new Error("[Wrapper] [Websocket] No gateway");
+			throw new Error('[Wrapper] [Websocket] No gateway');
 		}
 
 		this.Gateway.onopen = () => {
-			this.emit("open");
+			this.emit('open');
 		};
 
 		this.Gateway.onmessage = async (message) => {
@@ -209,19 +209,19 @@ class Websocket extends EventEmitter {
 			if (Payload?.S) this.Sequence = Payload.S;
 
 			switch (PayloadName) {
-				case "Hello": {
+				case 'Hello': {
 					this.Payloads.Identify();
 					break;
 				}
 
-				case "Authed": {
+				case 'Authed': {
 					const Data = Payload?.D as IdentifyPayload;
 
 					this.FailedConnectionAttempts = 0;
 
 					console.log(
-						`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green("[Websocket]")}`,
-						"We have been authed",
+						`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+						'We have been authed',
 						Payload,
 					);
 
@@ -232,7 +232,7 @@ class Websocket extends EventEmitter {
 					this.Sequence = 1;
 					this.LastHeartbeatAck = Date.now();
 					this.LastHeartbeatSent = Date.now();
-					this.Status = "Connected"; // Client will handle changing to Ready
+					this.Status = 'Connected'; // Client will handle changing to Ready
 
 					if (this.Worker) {
 						this.Worker.postMessage({
@@ -243,9 +243,9 @@ class Websocket extends EventEmitter {
 							},
 						});
 
-						this.Worker.addEventListener("message", (event: { data: WorkerData }) => {
+						this.Worker.addEventListener('message', (event: { data: WorkerData }) => {
 							if (!this.Worker) {
-								throw new Error("[Wrapper] [Websocket] No worker");
+								throw new Error('[Wrapper] [Websocket] No worker');
 							}
 
 							// @ts-expect-error -- waffles
@@ -255,23 +255,23 @@ class Websocket extends EventEmitter {
 
 							// eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check, sonarjs/no-nested-switch
 							switch (eventName) {
-								case "Hello": {
+								case 'Hello': {
 									console.log(
-										`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green(
-											"[Websocket]",
-										)} ${StringFormatter.yellow("[Worker]")}`,
+										`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green(
+											'[Websocket]',
+										)} ${StringFormatter.yellow('[Worker]')}`,
 										"We've been Acknowledged",
 									);
 
 									break;
 								}
 
-								case "Heartbeat": {
+								case 'Heartbeat': {
 									console.log(
-										`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green(
-											"[Websocket]",
-										)} ${StringFormatter.yellow("[Worker]")}`,
-										"We have been asked to heartbeat",
+										`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green(
+											'[Websocket]',
+										)} ${StringFormatter.yellow('[Worker]')}`,
+										'We have been asked to heartbeat',
 									);
 
 									this.Payloads.Heartbeat();
@@ -290,10 +290,10 @@ class Websocket extends EventEmitter {
 
 								default: {
 									console.log(
-										`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green(
-											"[Websocket]",
-										)} ${StringFormatter.yellow("[Worker]")}`,
-										"Unknown event",
+										`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green(
+											'[Websocket]',
+										)} ${StringFormatter.yellow('[Worker]')}`,
+										'Unknown event',
 										eventName,
 										op,
 									);
@@ -302,13 +302,13 @@ class Websocket extends EventEmitter {
 						});
 					} else {
 						console.warn(
-							`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green("[Websocket]")}`,
-							"No worker provided, using interval. Intervals are not recommended due to tab inactivity messing with javascripts timers",
+							`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+							'No worker provided, using interval. Intervals are not recommended due to tab inactivity messing with javascripts timers',
 						);
 						this.HeartBeating = setInterval(() => {
 							console.log(
-								`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green("[Websocket]")}`,
-								"Sending heartbeat",
+								`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+								'Sending heartbeat',
 							);
 
 							this.Payloads.Heartbeat();
@@ -317,30 +317,30 @@ class Websocket extends EventEmitter {
 					}
 
 					console.log(
-						`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green("[Websocket]")}`,
-						"Heartbeat interval set to",
+						`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+						'Heartbeat interval set to',
 						this.HeartbeatInterval,
 						randomPercentage,
 						this.HeartbeatInterval * randomPercentage,
 					);
 
-					this.emit("authed", Data);
+					this.emit('authed', Data);
 
 					break;
 				}
 
-				case "HeartBeatAck": {
+				case 'HeartBeatAck': {
 					this.LastHeartbeatAck = Date.now();
 
 					console.log(
-						`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green("[Websocket]")}`,
-						"Heartbeat acked",
+						`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+						'Heartbeat acked',
 					);
 
 					break;
 				}
 
-				case "Error": {
+				case 'Error': {
 					const ErrorPayload = Payload?.D as {
 						Errors: {
 							[Key: string]: {
@@ -352,8 +352,8 @@ class Websocket extends EventEmitter {
 
 					if (ErrorPayload.Errors?.Token) {
 						console.log(
-							`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green("[Websocket]")}`,
-							"Invalid token, stopping",
+							`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+							'Invalid token, stopping',
 						);
 
 						this.Worker?.postMessage({
@@ -361,28 +361,28 @@ class Websocket extends EventEmitter {
 							data: {},
 						});
 
-						this.Status = "Failed";
+						this.Status = 'Failed';
 
 						console.log(
-							`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green("[Websocket]")}`,
-							"Changing Status to Stopped",
+							`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+							'Changing Status to Stopped',
 						);
 
-						this.emit("unAuthed");
+						this.emit('unAuthed');
 
 						return;
 					}
 
 					console.log(
-						`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green("[Websocket]")}`,
-						"We received an error",
+						`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+						'We received an error',
 						ErrorPayload.Errors,
 					);
 
 					break;
 				}
 
-				case "GuildNew": {
+				case 'GuildNew': {
 					const Data = Payload?.D as Guild;
 
 					if (!this.Client?.guilds.get(Data.Id)) this.Client?.guilds.set(Data.Id, new BaseGuild(this.Client, Data));
@@ -390,8 +390,8 @@ class Websocket extends EventEmitter {
 					break;
 				}
 
-				case "ChannelUpdate":
-				case "ChannelNew": {
+				case 'ChannelUpdate':
+				case 'ChannelNew': {
 					// This is lazy and may cause issues buttttt who cares amirite
 					const Data = Payload?.D as ChannelPayload;
 
@@ -414,8 +414,8 @@ class Websocket extends EventEmitter {
 
 						default: {
 							console.warn(
-								`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green("[Websocket]")}`,
-								"Unhandled channel type",
+								`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+								'Unhandled channel type',
 								Data.Type,
 							);
 
@@ -430,8 +430,8 @@ class Websocket extends EventEmitter {
 
 				default: {
 					console.log(
-						`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green("[Websocket]")}`,
-						"Unhandled payload:",
+						`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+						'Unhandled payload:',
 						PayloadName ?? Payload?.Op,
 						Payload,
 					);
@@ -441,14 +441,14 @@ class Websocket extends EventEmitter {
 
 		this.Gateway.onclose = (event) => {
 			console.log(
-				`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green("[Websocket]")}`,
-				"Gateway closed, Reconnecting",
+				`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+				'Gateway closed, Reconnecting',
 			);
 
-			if (this.Status === "DisconnectedOnPurpose") {
+			if (this.Status === 'DisconnectedOnPurpose') {
 				console.log(
-					`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green("[Websocket]")}`,
-					"Gateway closed, not reconnecting",
+					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+					'Gateway closed, not reconnecting',
 				);
 
 				this.Worker?.postMessage({
@@ -474,10 +474,10 @@ class Websocket extends EventEmitter {
 				// whar
 			}
 
-			if (this.Status === "Failed") {
+			if (this.Status === 'Failed') {
 				console.log(
-					`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green("[Websocket]")}`,
-					"Gateway closed, not reconnecting",
+					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+					'Gateway closed, not reconnecting',
 				);
 
 				return;
@@ -487,7 +487,7 @@ class Websocket extends EventEmitter {
 
 			if (this.FailedConnectionAttempts >= this.MaxConnectionAttempts) {
 				console.log(
-					`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green("[Websocket]")}`,
+					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
 					`Failed to connect ${this.MaxConnectionAttempts} times, stopping`,
 				);
 
@@ -496,11 +496,11 @@ class Websocket extends EventEmitter {
 					data: {},
 				});
 
-				this.Status = "Failed";
+				this.Status = 'Failed';
 
 				console.log(
-					`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green("[Websocket]")}`,
-					"Changing Status to Stopped",
+					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+					'Changing Status to Stopped',
 				);
 
 				return;
@@ -508,7 +508,7 @@ class Websocket extends EventEmitter {
 
 			if (code === 1_006 || Object.values(HardCloseCodes).includes(code)) {
 				console.log(
-					`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green("[Websocket]")}`,
+					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
 					`Gateway closed with an unresumeable code: ${code}, Telling worker to stop`,
 				);
 
@@ -517,17 +517,17 @@ class Websocket extends EventEmitter {
 					data: {},
 				});
 
-				this.Status = "Reconnecting";
+				this.Status = 'Reconnecting';
 
 				console.log(
-					`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green("[Websocket]")}`,
-					"Changing Status to Reconnecting",
+					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+					'Changing Status to Reconnecting',
 				);
 
 				this.reconnect(false);
 			}
 
-			this.emit("closed");
+			this.emit('closed');
 		};
 	}
 
@@ -538,13 +538,13 @@ class Websocket extends EventEmitter {
 
 		if (Resumeable) {
 			console.log(
-				`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green("[Websocket]")}`,
-				"Reconnecting Resumeable",
+				`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+				'Reconnecting Resumeable',
 			);
 
 			// for now nothing
 		} else {
-			console.log(`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green("[Websocket]")}`, "Reconnecting");
+			console.log(`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`, 'Reconnecting');
 
 			this.connect();
 		}
@@ -555,13 +555,13 @@ class Websocket extends EventEmitter {
 		Op: (typeof ServerOpCodes)[keyof typeof ServerOpCodes];
 		S: number;
 	} | null> {
-		if (typeof message.data === "string") {
+		if (typeof message.data === 'string') {
 			try {
 				return JSON.parse(message.data);
 			} catch (error) {
 				console.warn(
-					`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green("[Websocket]")}`,
-					"Error parsing message",
+					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+					'Error parsing message',
 					error,
 				);
 
@@ -579,7 +579,7 @@ class Websocket extends EventEmitter {
 					if (this.Compression) {
 						const Inflator = new pako.Inflate({
 							chunkSize: 65_535,
-							to: "string",
+							to: 'string',
 						});
 
 						Inflator.push(data, true);
@@ -587,15 +587,15 @@ class Websocket extends EventEmitter {
 						const decompressed = Inflator.result;
 
 						if (decompressed) {
-							if (typeof decompressed === "string") {
+							if (typeof decompressed === 'string') {
 								try {
 									const parsed = JSON.parse(decompressed);
 
 									resolve(parsed);
 								} catch (error) {
 									console.warn(
-										`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green("[Websocket]")}`,
-										"Error parsing message",
+										`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+										'Error parsing message',
 										error,
 									);
 
@@ -608,8 +608,8 @@ class Websocket extends EventEmitter {
 									resolve(parsed);
 								} catch (error) {
 									console.warn(
-										`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green("[Websocket]")}`,
-										"Error parsing message",
+										`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+										'Error parsing message',
 										error,
 									);
 
@@ -624,8 +624,8 @@ class Websocket extends EventEmitter {
 							resolve(parsed);
 						} catch (error) {
 							console.warn(
-								`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green("[Websocket]")}`,
-								"Error parsing message",
+								`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+								'Error parsing message',
 								error,
 							);
 
@@ -636,8 +636,8 @@ class Websocket extends EventEmitter {
 			});
 		} else {
 			console.warn(
-				`${StringFormatter.purple("[Wrapper]")} ${StringFormatter.green("[Websocket]")}`,
-				"Unknown Payload type, here we go",
+				`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+				'Unknown Payload type, here we go',
 				message,
 			);
 

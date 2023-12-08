@@ -1,4 +1,4 @@
-import type { PermissionsOverrides } from "../../RawTypes/PermissionOverride";
+import type { PermissionsOverrides } from '../../RawTypes/PermissionOverride';
 
 export interface ChannelPayload {
 	AllowedMentions: number;

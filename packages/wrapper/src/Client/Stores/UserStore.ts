@@ -1,6 +1,6 @@
-import type Client from "../Client";
-import type BaseUser from "../Structures/Users/BaseUser.js";
-import BaseStore from "./BaseStore.js";
+import type Client from '../Client';
+import type BaseUser from '../Structures/Users/BaseUser.js';
+import BaseStore from './BaseStore.js';
 
 /**
  * A store for Users.

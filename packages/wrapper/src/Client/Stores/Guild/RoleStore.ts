@@ -1,6 +1,6 @@
-import type Client from "../../Client";
-import type Role from "../../Structures/Guilds/Role";
-import BaseStore from "../BaseStore.js";
+import type Client from '../../Client';
+import type Role from '../../Structures/Guilds/Role';
+import BaseStore from '../BaseStore.js';
 
 /**
  * A store for Roles.

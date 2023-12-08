@@ -1,6 +1,6 @@
-import type Client from "../../Client";
-import type Invite from "../../Structures/Guilds/Invite";
-import BaseStore from "../BaseStore.js";
+import type Client from '../../Client';
+import type Invite from '../../Structures/Guilds/Invite';
+import BaseStore from '../BaseStore.js';
 
 /**
  * A store for Invites.

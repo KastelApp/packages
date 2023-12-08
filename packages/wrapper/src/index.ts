@@ -1,9 +1,9 @@
-export { Flags as FlagsStructure } from "./Client/Structures/Flags.js";
-export { Permissions as PermissionStructure } from "./Client/Structures/Permissions.js";
-export { Payloads } from "./Websocket/Payloads.js";
-export * from "./Websocket/Ws.js";
-export { Rest } from "./Rest/Rest.js";
-export { Client } from "./Client/Client.js";
+export { Flags as FlagsStructure } from './Client/Structures/Flags.js';
+export { Permissions as PermissionStructure } from './Client/Structures/Permissions.js';
+export { Payloads } from './Websocket/Payloads.js';
+export * from './Websocket/Ws.js';
+export { Rest } from './Rest/Rest.js';
+export { Client } from './Client/Client.js';
 export {
 	AuthlessRoutes,
 	ChannelPermissions,
@@ -24,8 +24,8 @@ export {
 	ServerOpCodes,
 	SoftCloseCodes,
 	MessageStates,
-} from "./Utils/Constants.js";
-export * from "./Utils/R&E.js";
+} from './Utils/Constants.js';
+export * from './Utils/R&E.js';
 export {
 	ChannelStore,
 	GuildStore,
@@ -36,15 +36,15 @@ export {
 	GuildMemberStore,
 	InviteStore,
 	MessageStore,
-} from "./Client/Stores/index.js";
-export { BaseChannel } from "./Client/Structures/Channels/BaseChannel.js";
-export { BaseGuild } from "./Client/Structures/Guilds/BaseGuild.js";
-export { GuildMember } from "./Client/Structures/Guilds/GuildMember.js";
-export { Role } from "./Client/Structures/Guilds/Role.js";
-export { BaseUser } from "./Client/Structures/Users/BaseUser.js";
-export { Message } from "./Client/Structures/Channels/Message.js";
-export { Ban } from "./Client/Structures/Guilds/Ban.js";
-export { Invite } from "./Client/Structures/Guilds/Invite.js";
+} from './Client/Stores/index.js';
+export { BaseChannel } from './Client/Structures/Channels/BaseChannel.js';
+export { BaseGuild } from './Client/Structures/Guilds/BaseGuild.js';
+export { GuildMember } from './Client/Structures/Guilds/GuildMember.js';
+export { Role } from './Client/Structures/Guilds/Role.js';
+export { BaseUser } from './Client/Structures/Users/BaseUser.js';
+export { Message } from './Client/Structures/Channels/Message.js';
+export { Ban } from './Client/Structures/Guilds/Ban.js';
+export { Invite } from './Client/Structures/Guilds/Invite.js';
 export type {
 	AuthlessRoute,
 	Channel,
@@ -82,4 +82,4 @@ export type {
 	UserObject,
 	WebsocketSettings,
 	WorkerData,
-} from "./types/index.js";
+} from './types/index.js';

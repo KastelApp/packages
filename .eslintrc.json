@@ -6,7 +6,7 @@
 	},
 	"rules": {
 		"@typescript-eslint/consistent-type-definitions": ["error", "interface"],
-		"quotes": ["error", "double", { "avoidEscape": true }]
+		"quotes": ["error", "single", { "avoidEscape": true }]
 	},
 	"ignorePatterns": ["**/dist/*"]
 }

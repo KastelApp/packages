@@ -1,6 +1,6 @@
 /* eslint-disable id-length */
-import { ServerOpCodes } from "../Utils/Constants.js";
-import type Websocket from "./Ws";
+import { ServerOpCodes } from '../Utils/Constants.js';
+import type Websocket from './Ws';
 
 class Payloads {
 	private readonly Gateway: Websocket | undefined;
@@ -13,7 +13,7 @@ class Payloads {
 		this.Send = Send;
 
 		if (this.Send && !this.Gateway) {
-			throw new Error("[Wrapper] [Payloads] You cannot send payloads without a gateway");
+			throw new Error('[Wrapper] [Payloads] You cannot send payloads without a gateway');
 		}
 	}
 

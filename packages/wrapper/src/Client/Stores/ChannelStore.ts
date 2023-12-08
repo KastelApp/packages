@@ -1,6 +1,6 @@
-import type Client from "../Client";
-import BaseChannel from "../Structures/Channels/BaseChannel.js";
-import BaseStore from "./BaseStore.js";
+import type Client from '../Client';
+import BaseChannel from '../Structures/Channels/BaseChannel.js';
+import BaseStore from './BaseStore.js';
 
 /**
  * A store for Channels.
@@ -33,13 +33,13 @@ class ChannelStore {
 	}
 
 	public get currentChannel(): BaseChannel | undefined {
-		return this.channels.get(this._currentChannel ?? "");
+		return this.channels.get(this._currentChannel ?? '');
 	}
 
 	public setCurrentChannel(value: BaseChannel | string | undefined) {
 		if (value instanceof BaseChannel) {
 			this._currentChannel = value.id;
-		} else if (typeof value === "string") {
+		} else if (typeof value === 'string') {
 			this._currentChannel = value;
 		} else {
 			this._currentChannel = null;

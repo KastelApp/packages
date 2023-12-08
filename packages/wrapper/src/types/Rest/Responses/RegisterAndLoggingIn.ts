@@ -1,4 +1,4 @@
-import type { ResponseBody } from "..";
+import type { ResponseBody } from '..';
 
 export interface RegisterResponse extends ResponseBody {
 	Token: string;

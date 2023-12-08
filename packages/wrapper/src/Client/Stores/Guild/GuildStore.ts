@@ -1,8 +1,8 @@
-import { Endpoints } from "../../../Utils/R&E.js";
-import type { CreateGuild, GuildResponse } from "../../../types/Client/Guild";
-import type Client from "../../Client";
-import BaseGuild from "../../Structures/Guilds/BaseGuild.js";
-import BaseStore from "../BaseStore.js";
+import { Endpoints } from '../../../Utils/R&E.js';
+import type { CreateGuild, GuildResponse } from '../../../types/Client/Guild';
+import type Client from '../../Client';
+import BaseGuild from '../../Structures/Guilds/BaseGuild.js';
+import BaseStore from '../BaseStore.js';
 
 /**
  * A store for Guilds.
@@ -35,7 +35,7 @@ class GuildStore {
 	}
 
 	public get currentGuild(): BaseGuild | undefined {
-		return this.guilds.get(this._currentGuild ?? "");
+		return this.guilds.get(this._currentGuild ?? '');
 	}
 
 	public toArray(): BaseGuild[] {
@@ -45,7 +45,7 @@ class GuildStore {
 	public setCurrentGuild(value: BaseGuild | string | undefined) {
 		if (value instanceof BaseGuild) {
 			this._currentGuild = value.id;
-		} else if (typeof value === "string") {
+		} else if (typeof value === 'string') {
 			this._currentGuild = value;
 		} else {
 			this._currentGuild = null;
@@ -68,8 +68,8 @@ class GuildStore {
 				success: false,
 				errors: {
 					description: false,
-					name: NameError?.Code === "MissingName",
-					maxGuilds: MaxGuildError?.Code === "MaxGuildsReached",
+					name: NameError?.Code === 'MissingName',
+					maxGuilds: MaxGuildError?.Code === 'MaxGuildsReached',
 				},
 			};
 		}

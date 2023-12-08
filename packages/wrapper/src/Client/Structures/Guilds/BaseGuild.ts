@@ -1,15 +1,15 @@
-import { ChannelTypes } from "../../../Utils/Constants.js";
-import { Endpoints } from "../../../Utils/R&E.js";
-import type { CreateChannelOptions } from "../../../types/Client/Options.js";
-import type { Channel } from "../../../types/Rest/Responses/Channel.js";
-import type { Guild } from "../../../types/Websocket/Payloads/Auth.js";
-import type { Client } from "../../Client.js";
-import BaseChannel from "../Channels/BaseChannel.js";
-import CategoryChannel from "../Channels/CategoryChannel.js";
-import TextChannel from "../Channels/TextChannel.js";
-import BaseUser from "../Users/BaseUser.js";
-import GuildMember from "./GuildMember.js";
-import Role from "./Role.js";
+import { ChannelTypes } from '../../../Utils/Constants.js';
+import { Endpoints } from '../../../Utils/R&E.js';
+import type { CreateChannelOptions } from '../../../types/Client/Options.js';
+import type { Channel } from '../../../types/Rest/Responses/Channel.js';
+import type { Guild } from '../../../types/Websocket/Payloads/Auth.js';
+import type { Client } from '../../Client.js';
+import BaseChannel from '../Channels/BaseChannel.js';
+import CategoryChannel from '../Channels/CategoryChannel.js';
+import TextChannel from '../Channels/TextChannel.js';
+import BaseUser from '../Users/BaseUser.js';
+import GuildMember from './GuildMember.js';
+import Role from './Role.js';
 
 class BaseGuild {
 	private readonly Client: Client;
@@ -34,7 +34,7 @@ class BaseGuild {
 		this.Client = client;
 
 		if (!this.Client) {
-			throw new Error("[Wrapper] [BaseGuild] You cannot create a guild without a client");
+			throw new Error('[Wrapper] [BaseGuild] You cannot create a guild without a client');
 		}
 
 		this.id = RawGuild.Id;

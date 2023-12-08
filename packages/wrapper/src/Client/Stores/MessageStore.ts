@@ -1,6 +1,6 @@
-import type Client from "../Client";
-import type Message from "../Structures/Channels/Message";
-import BaseStore from "./BaseStore.js";
+import type Client from '../Client';
+import type Message from '../Structures/Channels/Message';
+import BaseStore from './BaseStore.js';
 
 /**
  * A store for Messages.
