@@ -76,7 +76,7 @@ class GuildStore {
 
 		const Guild = new BaseGuild(this.client, json);
 
-		this.guilds.set(Guild.id, Guild);
+		if (!this.guilds.has(Guild.id)) this.guilds.set(Guild.id, Guild);
 
 		return {
 			success: true,

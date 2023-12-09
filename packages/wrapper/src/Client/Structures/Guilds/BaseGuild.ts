@@ -116,6 +116,18 @@ class BaseGuild {
 		return this.Client.roles.filter((role) => role.guildId === this.id);
 	}
 
+	public async delete() {
+		const DeletedGuild = await this.Client.Rest.delete(Endpoints.Guild(this.id));
+
+		if (DeletedGuild.statusCode === 202) {
+			this.Client.guilds.guilds.delete(this.id);
+
+			return true;
+		}
+
+		return false;
+	}
+
 	public async createChannel({
 		name,
 		children,

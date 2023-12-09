@@ -385,7 +385,13 @@ class Websocket extends EventEmitter {
 				case 'GuildNew': {
 					const Data = Payload?.D as Guild;
 
-					if (!this.Client?.guilds.get(Data.Id)) this.Client?.guilds.set(Data.Id, new BaseGuild(this.Client, Data));
+					if (this.Client?.guilds.get(Data.Id))
+						console.log(
+							`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+							'Guild already exists',
+							Data.Id,
+						);
+					else this.Client?.guilds.set(Data.Id, new BaseGuild(this.Client, Data));
 
 					break;
 				}

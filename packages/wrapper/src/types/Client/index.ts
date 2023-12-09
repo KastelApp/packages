@@ -54,4 +54,29 @@ export interface RegisterAndLoginError {
 	success: false;
 }
 
+export interface CreateInvite {
+	maxUses?: number;
+}
+
+interface CreateInviteResponseSuccess {
+	code: string;
+
+	expiresAt: string;
+	maxUses: number;
+	success: true;
+}
+
+interface CreateInviteResponseFail {
+	code: null;
+	errors?: {
+		invalidChannel?: boolean;
+		noPermissions?: boolean;
+	};
+	expiresAt: null;
+	maxUses: null;
+	success: false;
+}
+
+export type CreateInviteResponse = CreateInviteResponseFail | CreateInviteResponseSuccess;
+
 export type RegisterAndLogin = RegisterAndLoginError | RegisterAndLoginSuccess;

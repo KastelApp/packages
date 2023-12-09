@@ -1,5 +1,7 @@
 import { ChannelTypes } from '../../../Utils/Constants.js';
 import { Endpoints } from '../../../Utils/R&E.js';
+import type { CreateInvite, CreateInviteResponse } from '../../../types/Client/index.js';
+import type { InviteResponse } from '../../../types/Rest/Responses/InviteCreate.js';
 import type { Channel } from '../../../types/Websocket/Payloads/Auth.js';
 import type { Client } from '../../Client.js';
 import Permissions from '../Permissions.js';
@@ -141,6 +143,42 @@ class BaseChannel {
 			this.type === 'GuildRules' ||
 			this.type === 'GuildNews'
 		);
+	}
+
+	public async createInvite(options: CreateInvite): Promise<CreateInviteResponse> {
+		if (!this.isTextBased() || this.type === 'GroupChat' || this.type === 'Dm') {
+			throw new Error('[Wrapper] [BaseChannel] [createInvite] You can only create invites in text channels');
+		}
+
+		const { json } = await this.Client.Rest.post(Endpoints.GuildInvites(this.guildId as string), {
+			body: {
+				MaxUses: options.maxUses ?? 0,
+				ChannelId: this.id,
+				Type: 1,
+			},
+		});
+
+		const data = json as InviteResponse;
+
+		if (data.CreatorId) {
+			return {
+				success: true,
+				code: data.Code,
+				expiresAt: data.ExpiresAt,
+				maxUses: data.MaxUses,
+			};
+		}
+
+		return {
+			success: false,
+			code: null,
+			expiresAt: null,
+			maxUses: null,
+			errors: {
+				invalidChannel: Object.keys(data?.Errors ?? {}).some((key) => data.Errors?.[key]?.Code === 'InvalidChannelId'),
+				noPermissions: Object.keys(data?.Errors ?? {}).some((key) => data.Errors?.[key]?.Code === 'MissingPermissions'),
+			},
+		};
 	}
 }
 
