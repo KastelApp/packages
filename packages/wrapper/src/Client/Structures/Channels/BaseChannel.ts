@@ -150,7 +150,7 @@ class BaseChannel {
 			throw new Error('[Wrapper] [BaseChannel] [createInvite] You can only create invites in text channels');
 		}
 
-		const { json } = await this.Client.Rest.post(Endpoints.GuildInvites(this.guildId as string), {
+		const { json } = await this.Client.Rest.post<InviteResponse>(Endpoints.GuildInvites(this.guildId as string), {
 			body: {
 				MaxUses: options.maxUses ?? 0,
 				ChannelId: this.id,
@@ -158,14 +158,12 @@ class BaseChannel {
 			},
 		});
 
-		const data = json as InviteResponse;
-
-		if (data.CreatorId) {
+		if (json.CreatorId) {
 			return {
 				success: true,
-				code: data.Code,
-				expiresAt: data.ExpiresAt,
-				maxUses: data.MaxUses,
+				code: json.Code,
+				expiresAt: json.ExpiresAt,
+				maxUses: json.MaxUses,
 			};
 		}
 
@@ -175,8 +173,8 @@ class BaseChannel {
 			expiresAt: null,
 			maxUses: null,
 			errors: {
-				invalidChannel: Object.keys(data?.Errors ?? {}).some((key) => data.Errors?.[key]?.Code === 'InvalidChannelId'),
-				noPermissions: Object.keys(data?.Errors ?? {}).some((key) => data.Errors?.[key]?.Code === 'MissingPermissions'),
+				invalidChannel: Object.keys(json?.Errors ?? {}).some((key) => json.Errors?.[key]?.Code === 'InvalidChannelId'),
+				noPermissions: Object.keys(json?.Errors ?? {}).some((key) => json.Errors?.[key]?.Code === 'MissingPermissions'),
 			},
 		};
 	}

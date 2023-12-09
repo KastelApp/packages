@@ -1,6 +1,6 @@
 import { Endpoints } from '../../../Utils/R&E.js';
 import type { EditableUser } from '../../../types/Client/User.js';
-import type { UserObject } from '../../../types/Websocket/Payloads/Auth.js';
+import type { Settings, UserObject } from '../../../types/Websocket/Payloads/Auth.js';
 import type { Client } from '../../Client.js';
 import Flags from '../Flags.js';
 
@@ -35,7 +35,15 @@ class BaseUser {
 
 	private readonly _client: boolean = false;
 
-	public constructor(Client: Client, RawUser: UserObject, isClient?: boolean) {
+	public theme: 'dark' | 'light' = 'dark';
+
+	public language: 'en-UK' | 'en-US' = 'en-US';
+
+	public presence: 'dnd' | 'idle' | 'offline' | 'online' = 'online';
+
+	public status: string | null = null;
+
+	public constructor(Client: Client, RawUser: UserObject, isClient?: boolean, settings?: Settings) {
 		this.Client = Client;
 
 		if (!this.Client) {
@@ -69,6 +77,16 @@ class BaseUser {
 		this.bio = this._RawUser.Bio ?? null;
 
 		this._client = isClient ?? false;
+
+		if (settings) {
+			this.theme = settings.Theme as 'dark' | 'light';
+
+			this.language = settings.Language as 'en-UK' | 'en-US';
+
+			this.presence = 'online';
+
+			this.status = settings.Status;
+		}
 	}
 
 	public set RawUser(RawUser: UserObject) {

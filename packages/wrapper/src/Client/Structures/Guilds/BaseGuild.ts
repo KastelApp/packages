@@ -30,7 +30,9 @@ class BaseGuild {
 
 	public readonly name: string;
 
-	public constructor(client: Client, RawGuild: Guild) {
+	public readonly partial: boolean = false;
+
+	public constructor(client: Client, RawGuild: Guild, partial?: boolean) {
 		this.Client = client;
 
 		if (!this.Client) {
@@ -52,6 +54,8 @@ class BaseGuild {
 		this.maxMembers = RawGuild.MaxMembers;
 
 		this.description = RawGuild.Description;
+
+		this.partial = partial ?? false;
 
 		for (const channel of RawGuild.Channels) {
 			if (this.Client.channels.get(channel.Id)) {

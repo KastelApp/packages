@@ -1,3 +1,6 @@
+import type BaseChannel from '../../Client/Structures/Channels/BaseChannel.js';
+import type BaseGuild from '../../Client/Structures/Guilds/BaseGuild.js';
+import type BaseUser from '../../Client/Structures/Users/BaseUser.js';
 import type { Rest } from '../../Rest/Rest';
 import type Websocket from '../../Websocket/Ws';
 
@@ -76,6 +79,24 @@ interface CreateInviteResponseFail {
 	maxUses: null;
 	success: false;
 }
+
+interface InviteSuccess {
+	channel: BaseChannel;
+	code: string;
+	creator: BaseUser;
+	guild: BaseGuild;
+	success: true;
+}
+
+interface InviteFail {
+	channel: null;
+	code: null;
+	creator: null;
+	guild: null;
+	success: false;
+}
+
+export type InviteResponse = InviteFail | InviteSuccess;
 
 export type CreateInviteResponse = CreateInviteResponseFail | CreateInviteResponseSuccess;
 

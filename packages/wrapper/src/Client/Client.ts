@@ -6,13 +6,15 @@ import { DefaultWebsocketSettings } from '../Utils/Constants.js';
 import { Endpoints } from '../Utils/R&E.js';
 import StringFormatter from '../Utils/StringFormatter.js';
 import Websocket from '../Websocket/Ws.js';
-import type { ClientOptions, RegisterAndLogin } from '../types/Client';
+import type { ClientOptions, InviteResponse, RegisterAndLogin } from '../types/Client';
 import type { LoginOptions, RegisterAccountOptions } from '../types/Client/Options.js';
+import type { FetchedInvite } from '../types/Rest/Responses/InviteFetch.js';
 import type { RegisterResponse } from '../types/Rest/Responses/RegisterAndLoggingIn.js';
 import BanStore from './Stores/Guild/BanStore.js';
 import GuildMemberStore from './Stores/Guild/GuildMemberStore.js';
 import InviteStore from './Stores/Guild/InviteStore.js';
 import { ChannelStore, GuildStore, RoleStore, UserStore } from './Stores/index.js';
+import BaseChannel from './Structures/Channels/BaseChannel.js';
 import BaseGuild from './Structures/Guilds/BaseGuild.js';
 import BaseUser from './Structures/Users/BaseUser.js';
 
@@ -136,7 +138,7 @@ class Client extends EventEmitter {
 		if (!this.Websocket) throw new Error('[Wrapper] [Client] Websocket is not defined, did you forget to set it?');
 
 		this.Websocket.on('authed', (data) => {
-			this.users.set(data.User.Id, new BaseUser(this, data.User, true));
+			this.users.set(data.User.Id, new BaseUser(this, data.User, true, data.Settings));
 
 			for (const guild of data.Guilds) {
 				console.log(
@@ -313,6 +315,96 @@ class Client extends EventEmitter {
 		this.resetCache();
 
 		return statusCode === 204;
+	}
+
+	public async fetchInvite(code: string): Promise<InviteResponse> {
+		const { json } = await this.Rest.get<FetchedInvite>(Endpoints.Invite(code));
+
+		if (!json.Errors) {
+			const FoundGuild = this.guilds.get(json.Guild.Id);
+			const FoundChannel = this.channels.get(json.Channel.Id);
+			const FoundInviter = this.users.get(json.Creator.Id);
+
+			if (!FoundGuild) {
+				const Guild = new BaseGuild(
+					this,
+					{
+						Channels: [],
+						CoOwners: [],
+						Description: json.Guild.Description,
+						Features: json.Guild.Features,
+						Flags: 0,
+						Icon: json.Guild.Icon,
+						Id: json.Guild.Id,
+						MaxMembers: 0,
+						Members: [],
+						Name: json.Guild.Name,
+						OwnerId: json.Guild.OwnerId,
+						Roles: [],
+					},
+					true,
+				);
+
+				this.guilds.set(Guild.id, Guild);
+			}
+
+			if (!FoundChannel) {
+				const channel = new BaseChannel(this, {
+					AllowedMentions: 0,
+					Children: [],
+					Description: '',
+					Id: json.Channel.Id,
+					Name: json.Channel.Name,
+					Nsfw: false,
+					ParentId: '',
+					PermissionsOverrides: [],
+					Position: 0,
+					Slowmode: 0,
+					Type: json.Channel.Type,
+				});
+
+				this.channels.set(channel.id, channel);
+			}
+
+			if (!FoundInviter) {
+				const User = new BaseUser(
+					this,
+					{
+						Avatar: json.Creator.Avatar,
+						GlobalNickname: json.Creator.GlobalNickname,
+						Id: json.Creator.Id,
+						Tag: json.Creator.Tag,
+						Username: json.Creator.Username,
+						PublicFlags: json.Creator.PublicFlags,
+					},
+					false,
+				);
+
+				this.users.set(User.id, User);
+			}
+
+			return {
+				success: true,
+				channel: this.channels.get(json.Channel.Id) as BaseChannel,
+				code: json.Code,
+				creator: this.users.get(json.Creator.Id) as BaseUser,
+				guild: this.guilds.get(json.Guild.Id) as BaseGuild,
+			};
+		}
+
+		return {
+			success: false,
+			channel: null,
+			creator: null,
+			guild: null,
+			code: null,
+		};
+	}
+
+	public async joinInvite(code: string): Promise<boolean> {
+		const { statusCode } = await this.Rest.put(Endpoints.Invite(code));
+
+		return statusCode === 200;
 	}
 }
 
