@@ -43,6 +43,7 @@
 	],
 	"devDependencies": {
 		"@favware/cliff-jumper": "^1.10.0",
+		"@types/express": "latest",
 		"@types/node": "^18.16.2",
 		"@vitest/coverage-c8": "^0.27.1",
 		"cross-env": "^7.0.3",

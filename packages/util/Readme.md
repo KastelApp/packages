@@ -28,7 +28,7 @@ const SnowflakeGen = new Snowflake({
 
 const GeneratedSnowflake = SnowflakeGen.Generate();
 
-StringFormatter.log(GeneratedSnowflake); // 21443134786896192
+console.log(GeneratedSnowflake); // 21443134786896192
 
 const HTTPError = new HTTPErrors(4000, {
 	Code: {
@@ -44,5 +44,5 @@ HTTPError.AddError({
 	},
 });
 
-StringFormatter.log(HTTPError.toJSON()); // { Code: 4000, Errors: { Code: { Message: 'Invalid Code', Status: 400 }, Waffles: { Message: 'Invalid Waffles', Status: 400 } }
+console.log(HTTPError.toJSON()); // { Code: 4000, Errors: { Code: { Message: 'Invalid Code', Status: 400 }, Waffles: { Message: 'Invalid Waffles', Status: 400 } }
 ```

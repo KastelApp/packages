@@ -10,7 +10,6 @@
 		cyan: '\u001B[36m',
 		white: '\u001B[37m',
 	};
-
 	public static purple(str: string): string {
 		return `${this.colors.purple}${str}${this.colors.reset}`;
 	}
@@ -125,7 +124,7 @@ class StringFormatter {
 			return acc;
 		}, []);
 
-		StringFormatter.log(...result.flat(1));
+		console.log(...result.flat(1));
 	}
 
 	public static purple(str: string) {

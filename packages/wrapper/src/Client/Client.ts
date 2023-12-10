@@ -142,7 +142,7 @@ class Client extends EventEmitter {
 
 			for (const guild of data.Guilds) {
 				StringFormatter.log(
-					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.orange('[Client')} Adding guild ${guild.Name} (${
+					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.orange('[Client]')} Adding guild ${guild.Name} (${
 						guild.Id
 					})`,
 					guild,
