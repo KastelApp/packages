@@ -1,9 +1,11 @@
 import { ChannelTypes, PermissionOverrideTypes } from '../../../Utils/Constants.js';
 import PermissionHandler from '../../../Utils/PermissionHandler.js';
 import { Endpoints } from '../../../Utils/R&E.js';
+import StringFormatter from '../../../Utils/StringFormatter.js';
 import type { CreateChannelOptions } from '../../../types/Client/Options.js';
 import type { Channel } from '../../../types/Rest/Responses/Channel.js';
-import type { Guild } from '../../../types/Websocket/Payloads/Auth.js';
+import type { RawInviteResponse } from '../../../types/Rest/Responses/InviteCreate.js';
+import type { Guild as GuildType } from '../../../types/Websocket/Payloads/Auth.js';
 import type { Client } from '../../Client.js';
 import { GuildMemberStore } from '../../Stores/index.js';
 import BaseChannel from '../Channels/BaseChannel.js';
@@ -11,9 +13,10 @@ import CategoryChannel from '../Channels/CategoryChannel.js';
 import TextChannel from '../Channels/TextChannel.js';
 import BaseUser from '../Users/BaseUser.js';
 import GuildMember from './GuildMember.js';
+import Invite from './Invite.js';
 import Role from './Role.js';
 
-class BaseGuild {
+class Guild {
 	private readonly Client: Client;
 
 	public readonly owner: boolean;
@@ -38,7 +41,7 @@ class BaseGuild {
 
 	public members: GuildMemberStore;
 
-	public constructor(client: Client, RawGuild: Guild, partial?: boolean) {
+	public constructor(client: Client, RawGuild: GuildType, partial?: boolean) {
 		this.Client = client;
 
 		if (!this.Client) {
@@ -230,8 +233,23 @@ class BaseGuild {
 
 		return null;
 	}
+
+	public async fetchMyInvites() {
+		const Invites = await this.Client.Rest.get<RawInviteResponse[]>(Endpoints.GuildInvite(this.id, '@me'));
+
+		for (const inv of Invites.json ?? []) {
+			this.Client.invites.set(inv.Code, new Invite(this.Client, inv as any));
+
+			StringFormatter.log(
+				`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.orange('[Client]')} Adding Invite ${inv.Code}`,
+				inv,
+			);
+		}
+
+		return this.Client.invites.filter((invite) => invite.guild?.id === this.id);
+	}
 }
 
-export default BaseGuild;
+export default Guild;
 
-export { BaseGuild };
+export { Guild };

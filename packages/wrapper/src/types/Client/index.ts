@@ -1,5 +1,5 @@
 import type BaseChannel from '../../Client/Structures/Channels/BaseChannel.js';
-import type BaseGuild from '../../Client/Structures/Guilds/BaseGuild.js';
+import type Guild from '../../Client/Structures/Guilds/Guild.js';
 import type BaseUser from '../../Client/Structures/Users/BaseUser.js';
 import type { Rest } from '../../Rest/Rest';
 import type Websocket from '../../Websocket/Ws';
@@ -58,6 +58,7 @@ export interface RegisterAndLoginError {
 }
 
 export interface CreateInvite {
+	expiresAt?: Date;
 	maxUses?: number;
 }
 
@@ -84,7 +85,7 @@ interface InviteSuccess {
 	channel: BaseChannel;
 	code: string;
 	creator: BaseUser;
-	guild: BaseGuild;
+	guild: Guild;
 	success: true;
 }
 

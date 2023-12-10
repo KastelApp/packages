@@ -1,7 +1,7 @@
 import { Endpoints } from '../../../Utils/R&E.js';
 import type { CreateGuild, GuildResponse } from '../../../types/Client/Guild';
 import type Client from '../../Client';
-import BaseGuild from '../../Structures/Guilds/BaseGuild.js';
+import Guild from '../../Structures/Guilds/Guild.js';
 import BaseStore from '../BaseStore.js';
 
 /**
@@ -12,7 +12,7 @@ class GuildStore {
 
 	public _currentGuild: string | null;
 
-	public guilds: BaseStore<string, BaseGuild> = new BaseStore();
+	public guilds: BaseStore<string, Guild> = new BaseStore();
 
 	public constructor(client: Client) {
 		this.client = client;
@@ -24,26 +24,26 @@ class GuildStore {
 		this._currentGuild = null;
 	}
 
-	public get(id: string): BaseGuild | undefined {
+	public get(id: string): Guild | undefined {
 		return this.guilds.get(id);
 	}
 
-	public set(id: string, value: BaseGuild): this {
+	public set(id: string, value: Guild): this {
 		this.guilds.set(id, value);
 
 		return this;
 	}
 
-	public get currentGuild(): BaseGuild | undefined {
+	public get currentGuild(): Guild | undefined {
 		return this.guilds.get(this._currentGuild ?? '');
 	}
 
-	public toArray(): BaseGuild[] {
+	public toArray(): Guild[] {
 		return this.guilds.array();
 	}
 
-	public setCurrentGuild(value: BaseGuild | string | undefined) {
-		if (value instanceof BaseGuild) {
+	public setCurrentGuild(value: Guild | string | undefined) {
+		if (value instanceof Guild) {
 			this._currentGuild = value.id;
 		} else if (typeof value === 'string') {
 			this._currentGuild = value;
@@ -74,18 +74,22 @@ class GuildStore {
 			};
 		}
 
-		const Guild = new BaseGuild(this.client, json);
+		const NewGuild = new Guild(this.client, json);
 
-		if (!this.guilds.has(Guild.id)) this.guilds.set(Guild.id, Guild);
+		if (!this.guilds.has(NewGuild.id)) this.guilds.set(NewGuild.id, NewGuild);
 
 		return {
 			success: true,
-			guild: Guild,
+			guild: NewGuild,
 		};
 	}
 
 	public clear(): void {
 		this.guilds.clear();
+	}
+
+	public filter(fn: (value: Guild, index: number, array: Guild[]) => unknown): Guild[] {
+		return this.guilds.array().filter(fn);
 	}
 }
 

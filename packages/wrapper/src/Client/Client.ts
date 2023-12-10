@@ -14,7 +14,8 @@ import BanStore from './Stores/Guild/BanStore.js';
 import InviteStore from './Stores/Guild/InviteStore.js';
 import { ChannelStore, GuildStore, RoleStore, UserStore } from './Stores/index.js';
 import BaseChannel from './Structures/Channels/BaseChannel.js';
-import BaseGuild from './Structures/Guilds/BaseGuild.js';
+import Guild from './Structures/Guilds/Guild.js';
+import Invite from './Structures/Guilds/Invite.js';
 import BaseUser from './Structures/Users/BaseUser.js';
 
 interface Client {
@@ -143,7 +144,7 @@ class Client extends EventEmitter {
 					guild,
 				);
 
-				this.guilds.set(guild.Id, new BaseGuild(this, guild));
+				this.guilds.set(guild.Id, new Guild(this, guild));
 			}
 
 			this.emit('ready');
@@ -320,7 +321,7 @@ class Client extends EventEmitter {
 			const FoundInviter = this.users.get(json.Creator.Id);
 
 			if (!FoundGuild) {
-				const Guild = new BaseGuild(
+				const NewGuild = new Guild(
 					this,
 					{
 						Channels: [],
@@ -339,7 +340,7 @@ class Client extends EventEmitter {
 					true,
 				);
 
-				this.guilds.set(Guild.id, Guild);
+				this.guilds.set(NewGuild.id, NewGuild);
 			}
 
 			if (!FoundChannel) {
@@ -377,12 +378,14 @@ class Client extends EventEmitter {
 				this.users.set(User.id, User);
 			}
 
+			this.invites.set(json.Code, new Invite(this, json as any));
+
 			return {
 				success: true,
 				channel: this.channels.get(json.Channel.Id) as BaseChannel,
 				code: json.Code,
 				creator: this.users.get(json.Creator.Id) as BaseUser,
-				guild: this.guilds.get(json.Guild.Id) as BaseGuild,
+				guild: this.guilds.get(json.Guild.Id) as Guild,
 			};
 		}
 

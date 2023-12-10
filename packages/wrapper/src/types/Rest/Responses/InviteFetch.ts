@@ -1,7 +1,6 @@
 import type { ResponseBody } from '../index.js';
 
-// @ts-expect-error -- Code is provided in both responses
-export interface FetchedInvite extends ResponseBody {
+export interface RawFetchedInvite {
 	Channel: Channel;
 	Code: string;
 	Creator: Creator;
@@ -32,3 +31,5 @@ export interface Channel {
 	Name: string;
 	Type: number;
 }
+
+export type FetchedInvite = RawFetchedInvite & ResponseBody;

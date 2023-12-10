@@ -7,12 +7,12 @@ import type Client from '../Client/Client.js';
 import BaseChannel from '../Client/Structures/Channels/BaseChannel.js';
 import CategoryChannel from '../Client/Structures/Channels/CategoryChannel.js';
 import TextChannel from '../Client/Structures/Channels/TextChannel.js';
-import BaseGuild from '../Client/Structures/Guilds/BaseGuild.js';
+import Guild from '../Client/Structures/Guilds/Guild.js';
 import { ChannelTypes, DefaultWebsocketSettings, HardCloseCodes, ServerOpCodes } from '../Utils/Constants.js';
 import StringFormatter from '../Utils/StringFormatter.js';
 import type { ConnectionType, Encoding, Status, WebsocketSettings } from '../types/Misc/ConfigTypes';
 import type { WorkerData } from '../types/Misc/index.js';
-import type { Guild, IdentifyPayload } from '../types/Websocket/Payloads/Auth.js';
+import type { Guild as GuildType, IdentifyPayload } from '../types/Websocket/Payloads/Auth.js';
 import type { ChannelPayload } from '../types/Websocket/Payloads/Channel.js';
 import Payloads from './Payloads.js';
 
@@ -383,7 +383,7 @@ class Websocket extends EventEmitter {
 				}
 
 				case 'GuildNew': {
-					const Data = Payload?.D as Guild;
+					const Data = Payload?.D as GuildType;
 
 					if (this.Client?.guilds.get(Data.Id))
 						StringFormatter.log(
@@ -391,7 +391,7 @@ class Websocket extends EventEmitter {
 							'Guild already exists',
 							Data.Id,
 						);
-					else this.Client?.guilds.set(Data.Id, new BaseGuild(this.Client, Data));
+					else this.Client?.guilds.set(Data.Id, new Guild(this.Client, Data));
 
 					break;
 				}

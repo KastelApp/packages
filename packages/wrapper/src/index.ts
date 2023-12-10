@@ -38,7 +38,7 @@ export {
 	MessageStore,
 } from './Client/Stores/index.js';
 export { BaseChannel } from './Client/Structures/Channels/BaseChannel.js';
-export { BaseGuild } from './Client/Structures/Guilds/BaseGuild.js';
+export { Guild as BaseGuild } from './Client/Structures/Guilds/Guild.js';
 export { GuildMember } from './Client/Structures/Guilds/GuildMember.js';
 export { Role } from './Client/Structures/Guilds/Role.js';
 export { BaseUser } from './Client/Structures/Users/BaseUser.js';

@@ -1,11 +1,13 @@
 import type { ResponseBody } from '../index.js';
 
-// @ts-expect-error -- Code is provided in both responses
-export interface InviteResponse extends ResponseBody {
+export interface RawInviteResponse {
 	Code: string;
+	CreatedAt: string;
 	CreatorId: string;
 	Deleteable: boolean;
 	ExpiresAt: string;
 	MaxUses: number;
 	Uses: number;
 }
+
+export type InviteResponse = RawInviteResponse & ResponseBody;

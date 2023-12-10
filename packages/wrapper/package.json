@@ -1,6 +1,6 @@
 {
 	"name": "@kastelll/wrapper",
-	"version": "0.1.9-beta.22",
+	"version": "0.1.9-beta.25",
 	"description": "This is a API & WS Wrapper for Kastel, Handles almost everything",
 	"license": "GPL-3.0-or-later",
 	"keywords": [],

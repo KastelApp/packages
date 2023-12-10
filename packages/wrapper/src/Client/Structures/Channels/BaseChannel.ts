@@ -4,6 +4,7 @@ import type { CreateInvite, CreateInviteResponse } from '../../../types/Client/i
 import type { InviteResponse } from '../../../types/Rest/Responses/InviteCreate.js';
 import type { Channel } from '../../../types/Websocket/Payloads/Auth.js';
 import type { Client } from '../../Client.js';
+import Invite from '../Guilds/Invite.js';
 import Permissions from '../Permissions.js';
 
 class BaseChannel {
@@ -145,20 +146,23 @@ class BaseChannel {
 		);
 	}
 
-	public async createInvite(options: CreateInvite): Promise<CreateInviteResponse> {
+	public async createInvite(options?: CreateInvite): Promise<CreateInviteResponse> {
 		if (!this.isTextBased() || this.type === 'GroupChat' || this.type === 'Dm') {
 			throw new Error('[Wrapper] [BaseChannel] [createInvite] You can only create invites in text channels');
 		}
 
 		const { json } = await this.Client.Rest.post<InviteResponse>(Endpoints.GuildInvites(this.guildId as string), {
 			body: {
-				MaxUses: options.maxUses ?? 0,
+				MaxUses: options?.maxUses ?? 0,
 				ChannelId: this.id,
 				Type: 1,
+				...(options?.expiresAt ? { ExpiresAt: options.expiresAt.toISOString() } : {}),
 			},
 		});
 
 		if (json.CreatorId) {
+			this.Client.invites.set(json.Code, new Invite(this.Client, json as any));
+
 			return {
 				success: true,
 				code: json.Code,

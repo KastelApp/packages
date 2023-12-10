@@ -1,11 +1,11 @@
-import type BaseGuild from '../../Client/Structures/Guilds/BaseGuild';
+import type Guild from '../../Client/Structures/Guilds/Guild.js';
 import type { ResponseBody } from '../Rest';
-import type { Guild } from '../Websocket/Payloads/Auth';
+import type { Guild as GuildType } from '../Websocket/Payloads/Auth';
 
-export type GuildResponse = Guild & ResponseBody;
+export type GuildResponse = GuildType & ResponseBody;
 
 export interface CreateGuildSuccess {
-	guild: BaseGuild;
+	guild: Guild;
 	success: true;
 }
 

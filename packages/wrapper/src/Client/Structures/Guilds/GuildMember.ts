@@ -1,13 +1,13 @@
 import type { Member } from '../../../types/Websocket/Payloads/Auth.js';
 import type { Client } from '../../Client.js';
 import type BaseUser from '../Users/BaseUser.js';
-import type BaseGuild from './BaseGuild.js';
+import type Guild from './Guild.js';
 import type Role from './Role.js';
 
 class GuildMember {
 	private readonly Client: Client;
 
-	public readonly guild: BaseGuild;
+	public readonly guild: Guild;
 
 	public readonly user: BaseUser;
 
@@ -19,7 +19,7 @@ class GuildMember {
 
 	public readonly nickname: string | null;
 
-	public constructor(client: Client, RawGuildMember: Member, Guild: BaseGuild) {
+	public constructor(client: Client, RawGuildMember: Member, Guild: Guild) {
 		this.Client = client;
 
 		if (!this.Client) {
