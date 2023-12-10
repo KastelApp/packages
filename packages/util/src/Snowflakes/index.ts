@@ -1,1 +1,1 @@
-export * from "./Snowflake.js";
+export * from './Snowflake.js';

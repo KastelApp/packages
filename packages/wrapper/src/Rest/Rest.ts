@@ -84,7 +84,7 @@ class Rest {
 					: {}),
 			})
 				.catch((error) => {
-					console.log('Failed to create the channel', error);
+					console.log('Failed to fetch...?', error);
 
 					resolve({
 						statusCode: 500,

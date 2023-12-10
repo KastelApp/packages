@@ -2,7 +2,7 @@ class DeprecatedError extends Error {
 	public constructor(message: string) {
 		super(message);
 
-		this.name = "DeprecatedError";
+		this.name = 'DeprecatedError';
 	}
 
 	public static warning(message: string): void {

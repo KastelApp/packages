@@ -9,10 +9,10 @@
  * GPL 3.0 Licensed
  */
 
-import { URLSearchParams } from "node:url";
-import { request } from "undici";
-import type { TurnstileValidationResponse } from "../types/Turnstile";
-import IpUtils from "./IpUtils.js";
+import { URLSearchParams } from 'node:url';
+import { request } from 'undici';
+import type { TurnstileValidationResponse } from '../types/Turnstile';
+import IpUtils from './IpUtils.js';
 
 class Turnstile {
 	private readonly Enabled: boolean;
@@ -26,7 +26,7 @@ class Turnstile {
 
 		this.Secret = TurnstileSecret;
 
-		this.VerifyURL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+		this.VerifyURL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 	}
 
 	public async Verify(response: string, ip?: string): Promise<TurnstileValidationResponse> {
@@ -38,21 +38,21 @@ class Turnstile {
 		if (!this.Secret)
 			return {
 				success: false,
-				"error-codes": ["internal-error"],
+				'error-codes': ['internal-error'],
 			}; // if captcha is enabled but no secret is provided then return false
 
 		const FormData = new URLSearchParams();
 
-		FormData.append("secret", this.Secret);
-		FormData.append("response", response);
+		FormData.append('secret', this.Secret);
+		FormData.append('response', response);
 
-		if (ip && !IpUtils.IsLocalIp(ip)) FormData.append("remoteip", ip);
+		if (ip && !IpUtils.IsLocalIp(ip)) FormData.append('remoteip', ip);
 
 		const { body } = await request(this.VerifyURL, {
-			method: "POST",
+			method: 'POST',
 			body: FormData.toString(),
 			headers: {
-				"Content-Type": "application/x-www-form-urlencoded",
+				'Content-Type': 'application/x-www-form-urlencoded',
 			},
 		});
 

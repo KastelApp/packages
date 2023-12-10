@@ -2,7 +2,7 @@ class RoutesNotFound extends Error {
 	public constructor(message: string) {
 		super(message);
 
-		this.name = "RoutesNotFound";
+		this.name = 'RoutesNotFound';
 	}
 }
 

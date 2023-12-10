@@ -2,7 +2,7 @@ class CannotUseCommand extends Error {
 	public constructor(message: string) {
 		super(message);
 
-		this.name = "CannotUseCommand";
+		this.name = 'CannotUseCommand';
 	}
 }
 

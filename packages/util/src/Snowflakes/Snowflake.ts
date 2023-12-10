@@ -1,4 +1,4 @@
-import type { SnowConfig } from "../types/Snowflake";
+import type { SnowConfig } from '../types/Snowflake';
 
 class Snowflake {
 	public Epoch: bigint;

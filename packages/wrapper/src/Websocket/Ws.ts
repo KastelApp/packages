@@ -164,7 +164,7 @@ class Websocket extends EventEmitter {
 
 		this.Status = 'Connecting';
 
-		console.log(
+		StringFormatter.log(
 			`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
 			'Changing status to Connecting',
 		);
@@ -219,7 +219,7 @@ class Websocket extends EventEmitter {
 
 					this.FailedConnectionAttempts = 0;
 
-					console.log(
+					StringFormatter.log(
 						`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
 						'We have been authed',
 						Payload,
@@ -256,7 +256,7 @@ class Websocket extends EventEmitter {
 							// eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check, sonarjs/no-nested-switch
 							switch (eventName) {
 								case 'Hello': {
-									console.log(
+									StringFormatter.log(
 										`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green(
 											'[Websocket]',
 										)} ${StringFormatter.yellow('[Worker]')}`,
@@ -267,7 +267,7 @@ class Websocket extends EventEmitter {
 								}
 
 								case 'Heartbeat': {
-									console.log(
+									StringFormatter.log(
 										`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green(
 											'[Websocket]',
 										)} ${StringFormatter.yellow('[Worker]')}`,
@@ -289,7 +289,7 @@ class Websocket extends EventEmitter {
 								}
 
 								default: {
-									console.log(
+									StringFormatter.log(
 										`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green(
 											'[Websocket]',
 										)} ${StringFormatter.yellow('[Worker]')}`,
@@ -306,7 +306,7 @@ class Websocket extends EventEmitter {
 							'No worker provided, using interval. Intervals are not recommended due to tab inactivity messing with javascripts timers',
 						);
 						this.HeartBeating = setInterval(() => {
-							console.log(
+							StringFormatter.log(
 								`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
 								'Sending heartbeat',
 							);
@@ -316,7 +316,7 @@ class Websocket extends EventEmitter {
 						}, this.HeartbeatInterval * randomPercentage);
 					}
 
-					console.log(
+					StringFormatter.log(
 						`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
 						'Heartbeat interval set to',
 						this.HeartbeatInterval,
@@ -332,7 +332,7 @@ class Websocket extends EventEmitter {
 				case 'HeartBeatAck': {
 					this.LastHeartbeatAck = Date.now();
 
-					console.log(
+					StringFormatter.log(
 						`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
 						'Heartbeat acked',
 					);
@@ -351,7 +351,7 @@ class Websocket extends EventEmitter {
 					};
 
 					if (ErrorPayload.Errors?.Token) {
-						console.log(
+						StringFormatter.log(
 							`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
 							'Invalid token, stopping',
 						);
@@ -363,7 +363,7 @@ class Websocket extends EventEmitter {
 
 						this.Status = 'Failed';
 
-						console.log(
+						StringFormatter.log(
 							`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
 							'Changing Status to Stopped',
 						);
@@ -373,7 +373,7 @@ class Websocket extends EventEmitter {
 						return;
 					}
 
-					console.log(
+					StringFormatter.log(
 						`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
 						'We received an error',
 						ErrorPayload.Errors,
@@ -386,7 +386,7 @@ class Websocket extends EventEmitter {
 					const Data = Payload?.D as Guild;
 
 					if (this.Client?.guilds.get(Data.Id))
-						console.log(
+						StringFormatter.log(
 							`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
 							'Guild already exists',
 							Data.Id,
@@ -435,7 +435,7 @@ class Websocket extends EventEmitter {
 				}
 
 				default: {
-					console.log(
+					StringFormatter.log(
 						`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
 						'Unhandled payload:',
 						PayloadName ?? Payload?.Op,
@@ -446,13 +446,13 @@ class Websocket extends EventEmitter {
 		};
 
 		this.Gateway.onclose = (event) => {
-			console.log(
+			StringFormatter.log(
 				`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
 				'Gateway closed, Reconnecting',
 			);
 
 			if (this.Status === 'DisconnectedOnPurpose') {
-				console.log(
+				StringFormatter.log(
 					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
 					'Gateway closed, not reconnecting',
 				);
@@ -481,7 +481,7 @@ class Websocket extends EventEmitter {
 			}
 
 			if (this.Status === 'Failed') {
-				console.log(
+				StringFormatter.log(
 					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
 					'Gateway closed, not reconnecting',
 				);
@@ -492,7 +492,7 @@ class Websocket extends EventEmitter {
 			this.FailedConnectionAttempts++;
 
 			if (this.FailedConnectionAttempts >= this.MaxConnectionAttempts) {
-				console.log(
+				StringFormatter.log(
 					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
 					`Failed to connect ${this.MaxConnectionAttempts} times, stopping`,
 				);
@@ -504,7 +504,7 @@ class Websocket extends EventEmitter {
 
 				this.Status = 'Failed';
 
-				console.log(
+				StringFormatter.log(
 					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
 					'Changing Status to Stopped',
 				);
@@ -513,7 +513,7 @@ class Websocket extends EventEmitter {
 			}
 
 			if (code === 1_006 || Object.values(HardCloseCodes).includes(code)) {
-				console.log(
+				StringFormatter.log(
 					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
 					`Gateway closed with an unresumeable code: ${code}, Telling worker to stop`,
 				);
@@ -525,7 +525,7 @@ class Websocket extends EventEmitter {
 
 				this.Status = 'Reconnecting';
 
-				console.log(
+				StringFormatter.log(
 					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
 					'Changing Status to Reconnecting',
 				);
@@ -543,14 +543,17 @@ class Websocket extends EventEmitter {
 		}
 
 		if (Resumeable) {
-			console.log(
+			StringFormatter.log(
 				`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
 				'Reconnecting Resumeable',
 			);
 
 			// for now nothing
 		} else {
-			console.log(`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`, 'Reconnecting');
+			StringFormatter.log(
+				`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.green('[Websocket]')}`,
+				'Reconnecting',
+			);
 
 			this.connect();
 		}

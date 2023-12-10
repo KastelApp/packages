@@ -2,7 +2,7 @@ class RouteError extends Error {
 	public constructor(message: string) {
 		super(message);
 
-		this.name = "RouteError";
+		this.name = 'RouteError';
 	}
 }
 

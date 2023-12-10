@@ -141,7 +141,7 @@ class Client extends EventEmitter {
 			this.users.set(data.User.Id, new BaseUser(this, data.User, true, data.Settings));
 
 			for (const guild of data.Guilds) {
-				console.log(
+				StringFormatter.log(
 					`${StringFormatter.purple('[Wrapper]')} ${StringFormatter.orange('[Client')} Adding guild ${guild.Name} (${
 						guild.Id
 					})`,
