@@ -38,6 +38,10 @@ class Permissions {
 	public toJSON() {
 		return Object.fromEntries(Object.entries(PermissionConstants).map(([key, value]) => [key, this.has(value)]));
 	}
+
+	public string() {
+		return this.SetPermissions.toString();
+	}
 }
 
 export default Permissions;

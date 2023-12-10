@@ -1,9 +1,11 @@
-import { ChannelTypes } from '../../../Utils/Constants.js';
+import { ChannelTypes, PermissionOverrideTypes } from '../../../Utils/Constants.js';
+import PermissionHandler from '../../../Utils/PermissionHandler.js';
 import { Endpoints } from '../../../Utils/R&E.js';
 import type { CreateChannelOptions } from '../../../types/Client/Options.js';
 import type { Channel } from '../../../types/Rest/Responses/Channel.js';
 import type { Guild } from '../../../types/Websocket/Payloads/Auth.js';
 import type { Client } from '../../Client.js';
+import { GuildMemberStore } from '../../Stores/index.js';
 import BaseChannel from '../Channels/BaseChannel.js';
 import CategoryChannel from '../Channels/CategoryChannel.js';
 import TextChannel from '../Channels/TextChannel.js';
@@ -16,7 +18,9 @@ class BaseGuild {
 
 	public readonly owner: boolean;
 
-	public readonly permissions: BigInt;
+	public readonly permissions: PermissionHandler;
+
+	public readonly coOwners: string[];
 
 	public readonly description: string | null;
 
@@ -31,6 +35,8 @@ class BaseGuild {
 	public readonly name: string;
 
 	public readonly partial: boolean = false;
+
+	public members: GuildMemberStore;
 
 	public constructor(client: Client, RawGuild: Guild, partial?: boolean) {
 		this.Client = client;
@@ -49,13 +55,15 @@ class BaseGuild {
 
 		this.owner = RawGuild.OwnerId === this.Client.users.getCurrentUser()?.id;
 
-		this.permissions = 0n; // RawGuild.Roles.reduce((a, b) => a | BigInt(b.Permissions), 0n);
+		this.members = new GuildMemberStore(this.Client);
 
 		this.maxMembers = RawGuild.MaxMembers;
 
 		this.description = RawGuild.Description;
 
 		this.partial = partial ?? false;
+
+		this.coOwners = RawGuild.CoOwners;
 
 		for (const channel of RawGuild.Channels) {
 			if (this.Client.channels.get(channel.Id)) {
@@ -86,7 +94,7 @@ class BaseGuild {
 		}
 
 		for (const guildMember of RawGuild.Members ?? []) {
-			if (this.Client.guildMembers.get(guildMember.User.Id)) {
+			if (this.members.get(guildMember.User.Id)) {
 				continue;
 			} else {
 				if (!this.Client.users.get(guildMember.User.Id)) {
@@ -107,9 +115,32 @@ class BaseGuild {
 					);
 				}
 
-				this.Client.guildMembers.set(guildMember.User.Id, new GuildMember(this.Client, guildMember, this));
+				this.members.set(guildMember.User.Id, new GuildMember(this.Client, guildMember, this));
 			}
 		}
+
+		this.permissions = new PermissionHandler(
+			this.Client.users.getCurrentUser()?.id ?? '',
+			this.owner
+				? 'owner'
+				: this.coOwners.includes(this.Client.users.getCurrentUser()?.id ?? '')
+				? 'coowner'
+				: 'member',
+			this.members.get(this.Client.users.getCurrentUser()?.id ?? '')?.roles.map((role) => ({
+				id: role.id,
+				permissions: role.permissions.string(),
+				position: role.position,
+			})) ?? [],
+			this.channels.map((channel) => ({
+				id: channel.id,
+				overrides: channel.permissionsOverrides.map((override) => ({
+					allow: override.allow.string(),
+					deny: override.deny.string(),
+					id: override.id,
+					type: override.type === PermissionOverrideTypes.Role ? 'Role' : 'Member',
+				})),
+			})),
+		);
 	}
 
 	public get channels() {

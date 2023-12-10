@@ -11,7 +11,6 @@ import type { LoginOptions, RegisterAccountOptions } from '../types/Client/Optio
 import type { FetchedInvite } from '../types/Rest/Responses/InviteFetch.js';
 import type { RegisterResponse } from '../types/Rest/Responses/RegisterAndLoggingIn.js';
 import BanStore from './Stores/Guild/BanStore.js';
-import GuildMemberStore from './Stores/Guild/GuildMemberStore.js';
 import InviteStore from './Stores/Guild/InviteStore.js';
 import { ChannelStore, GuildStore, RoleStore, UserStore } from './Stores/index.js';
 import BaseChannel from './Structures/Channels/BaseChannel.js';
@@ -47,8 +46,6 @@ class Client extends EventEmitter {
 	public readonly roles: RoleStore;
 
 	public readonly users: UserStore;
-
-	public readonly guildMembers: GuildMemberStore;
 
 	public PasswordRegex: RegExp;
 
@@ -102,8 +99,6 @@ class Client extends EventEmitter {
 		this.roles = new RoleStore(this);
 
 		this.users = new UserStore(this);
-
-		this.guildMembers = new GuildMemberStore(this);
 
 		this.invites = new InviteStore(this);
 
@@ -299,7 +294,6 @@ class Client extends EventEmitter {
 		this.guilds.clear();
 		this.roles.clear();
 		this.users.clear();
-		this.guildMembers.clear();
 		this.invites.clear();
 		this.bans.clear();
 	}
